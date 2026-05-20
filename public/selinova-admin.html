@@ -1,667 +1,133 @@
-
-<style>
-h2 class="sr-only" {position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
-*{box-sizing:border-box;margin:0;padding:0}
-body,html{font-family:var(--font-sans);color:var(--color-text-primary)}
-.wrap{max-width:880px;margin:0 auto;padding:1.5rem 1rem 3rem}
-.nav{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.5rem;gap:0;overflow-x:auto}
-.nav button{background:none;border:none;border-bottom:2px solid transparent;padding:12px 18px;font-size:14px;font-weight:400;color:var(--color-text-secondary);cursor:pointer;white-space:nowrap;font-family:var(--font-sans);transition:color .15s}
-.nav button.act{border-bottom-color:#BA7517;color:#BA7517;font-weight:500}
-.nav button:hover:not(.act){color:var(--color-text-primary)}
-.tab{display:none}
-.tab.act{display:block}
-.card{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem;text-align:center}
-.metric-val{font-size:26px;font-weight:500;font-family:var(--font-mono)}
-.metric-lbl{font-size:11px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
-.metric-sub{font-size:11px;color:var(--color-text-tertiary);margin-top:2px}
-.gold{color:#BA7517}
-.grn{color:#0F6E56}
-.blu{color:#185FA5}
-.red-c{color:#A32D2D}
-label.lbl{display:block;font-size:11px;font-weight:500;color:#BA7517;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
-input,textarea,select{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);color:var(--color-text-primary);font-family:var(--font-sans);font-size:14px;padding:9px 13px;width:100%;outline:none;transition:border-color .2s}
-input:focus,textarea:focus,select:focus{border-color:#BA7517;box-shadow:0 0 0 3px rgba(186,117,23,.12)}
-.btn{display:inline-flex;align-items:center;gap:6px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:none;color:var(--color-text-primary);font-family:var(--font-sans);font-size:13px;font-weight:500;padding:9px 16px;cursor:pointer;transition:all .15s}
-.btn:hover{background:var(--color-background-secondary)}
-.btn:active{transform:scale(.97)}
-.btn-gold{background:#BA7517;color:#fff;border-color:#BA7517}
-.btn-gold:hover{background:#854F0B;border-color:#854F0B}
-.btn-blue{background:#185FA5;color:#fff;border-color:#185FA5}
-.btn-blue:hover{background:#0C447C}
-.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.step{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:8px;overflow:hidden;cursor:pointer;transition:border-color .2s}
-.step:hover{border-color:#BA7517}
-.step.act{border-color:#BA7517;background:rgba(186,117,23,.05)}
-.step.done{opacity:.6;border-color:var(--color-border-success)}
-.step-hd{display:flex;align-items:center;gap:10px;padding:13px 16px}
-.step-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0;background:var(--color-background-tertiary);color:var(--color-text-secondary)}
-.step.act .step-num{background:#BA7517;color:#fff}
-.step.done .step-num{background:var(--color-background-success);color:var(--color-text-success)}
-.step-body{padding:0 16px 14px}
-.quote-box{background:var(--color-background-primary);border-left:3px solid #BA7517;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;padding:13px 16px;font-size:14px;line-height:1.75;margin-bottom:10px}
-.prog-track{height:4px;background:var(--color-border-tertiary);border-radius:4px;overflow:hidden}
-.prog-fill{height:100%;background:#BA7517;border-radius:4px;transition:width .4s}
-.msg-ai,.msg-user{border-radius:var(--border-radius-lg);padding:11px 15px;font-size:14px;line-height:1.7;max-width:88%;white-space:pre-wrap}
-.msg-ai{background:var(--color-background-info);border:0.5px solid var(--color-border-info)}
-.msg-user{background:rgba(186,117,23,.1);border:0.5px solid rgba(186,117,23,.3);margin-left:auto}
-.msg-lbl{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
-.fact{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 13px;font-size:13px;color:var(--color-text-secondary);line-height:1.55}
-.obj-btn{width:100%;text-align:left;padding:9px 12px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;color:var(--color-text-secondary);font-family:var(--font-sans);transition:all .15s}
-.obj-btn:hover{border-color:#BA7517;color:var(--color-text-primary)}
-.pkg{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;cursor:pointer;transition:all .2s;background:var(--color-background-secondary)}
-.pkg:hover{border-color:#BA7517}
-.pkg.sel{border:2px solid #BA7517;background:rgba(186,117,23,.05)}
-.pkg-icon{font-size:22px;margin-bottom:10px}
-.pkg-price{font-size:24px;font-weight:500;font-family:var(--font-mono);color:#BA7517}
-.pkg-unit{font-size:11px;color:var(--color-text-secondary);margin-bottom:8px}
-.pkg-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.55}
-.roadmap-row{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
-.roadmap-row:last-child{border-bottom:none}
-.rnum{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;font-family:var(--font-mono);flex-shrink:0}
-.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:500;padding:3px 9px;border-radius:20px;letter-spacing:.06em;text-transform:uppercase}
-.live-dot{width:7px;height:7px;border-radius:50%;background:#E24B4A;display:inline-block;animation:blink 1.1s infinite}
-.live-dot.g{background:#1D9E75}
-.typing{display:flex;gap:4px;align-items:center;padding:14px 16px}
-.dot{width:6px;height:6px;border-radius:50%;background:#378ADD}
-pre.invoice{font-family:var(--font-mono);font-size:12px;color:var(--color-text-secondary);line-height:1.8;white-space:pre-wrap}
-.pay-link{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px;font-family:var(--font-mono);font-size:12px;color:var(--color-text-secondary);word-break:break-all;line-height:1.6;margin-bottom:10px}
-.row-gap{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.section-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.12em;color:#BA7517;margin-bottom:12px}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
-@keyframes d1{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
-@keyframes d2{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
-@keyframes d3{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
-.dot:nth-child(1){animation:d1 1.2s infinite}
-.dot:nth-child(2){animation:d2 1.2s .2s infinite}
-.dot:nth-child(3){animation:d3 1.2s .4s infinite}
-.chat-area{max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;margin-bottom:12px;padding-right:4px}
-.coach-layout{display:grid;grid-template-columns:1fr 250px;gap:16px;align-items:start}
-@media(max-width:600px){.coach-layout{grid-template-columns:1fr}.sidebar-facts{display:none}}
-</style>
-
-<h2 class="sr-only">SELINOVATECH Projekt Vienna Dashboard — Cockpit, Akquise-Skripte, KI-Coach und Zahlungsabwicklung</h2>
-
-<div class="wrap">
-  <div style="margin-bottom:1.5rem">
-    <p style="font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--color-text-tertiary);margin-bottom:6px">Projekt Vienna · Echtzeit-Dashboard</p>
-    <h1 style="font-size:32px;font-weight:500;line-height:1.1;letter-spacing:-.02em">SELINO<span class="gold">VATECH</span></h1>
-    <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
-      <span class="live-dot g"></span>
-      <span style="font-size:12px;color:var(--color-text-tertiary);font-family:var(--font-mono)">Projekt Vienna · live · Wien</span>
-    </div>
-  </div>
-
-  <nav class="nav">
-    <button class="act" onclick="switchTab('cockpit')"><i class="ti ti-dashboard" aria-hidden="true"></i> Cockpit</button>
-    <button onclick="switchTab('akquise')"><i class="ti ti-script" aria-hidden="true"></i> Akquise</button>
-    <button onclick="switchTab('coach')"><i class="ti ti-brain" aria-hidden="true"></i> KI Coach</button>
-    <button onclick="switchTab('zahlung')"><i class="ti ti-credit-card" aria-hidden="true"></i> Zahlung</button>
-  </nav>
-
-  <!-- COCKPIT -->
-  <div id="tab-cockpit" class="tab act">
-    <div class="grid2" style="margin-bottom:1rem">
-      <div class="metric"><div class="metric-val grn">€4.500</div><div class="metric-lbl">Revenue / Monat</div><div class="metric-sub">pro Smart-Ad-Pack (20 Tage)</div></div>
-      <div class="metric"><div class="metric-val gold">€950</div><div class="metric-lbl">CAPEX / Unit</div><div class="metric-sub">Smart-Ad-Pack Hardware</div></div>
-      <div class="metric"><div class="metric-val blu">&lt;1 Monat</div><div class="metric-lbl">Amortisation</div><div class="metric-sub">Rückfluss-Zeitraum</div></div>
-      <div class="metric"><div class="metric-val gold">€85</div><div class="metric-lbl">TKP</div><div class="metric-sub">Tausend-Kontakt-Preis</div></div>
-      <div class="metric"><div class="metric-val" style="color:#534AB7">5.000/h</div><div class="metric-lbl">Sichtkontakte</div><div class="metric-sub">Wiener Innenstadt</div></div>
-      <div class="metric"><div class="metric-val grn">€69k/Mo</div><div class="metric-lbl">Fleet-Umsatz</div><div class="metric-sub">5-Rider-Flotte Brutto</div></div>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 300px;gap:12px">
-      <div class="card">
-        <p class="section-title"><i class="ti ti-route" aria-hidden="true"></i> Strategische Roadmap 2026</p>
-        <div class="roadmap-row">
-          <div class="rnum" style="background:#FAC775;color:#633806">01</div>
-          <div style="flex:1"><div style="font-weight:500;color:#BA7517">Förderphase</div><div style="font-size:13px;color:var(--color-text-secondary);margin-top:2px">Wiener Gründungsstipendium €8.000 — Gewerbeanmeldung nach Förderzusage</div></div>
-          <span class="badge" style="background:#FAC775;color:#633806;flex-shrink:0">aktiv</span>
-        </div>
-        <div class="roadmap-row">
-          <div class="rnum" style="background:var(--color-background-info);color:var(--color-text-info)">02</div>
-          <div style="flex:1"><div style="font-weight:500">Agency Launch</div><div style="font-size:13px;color:var(--color-text-secondary);margin-top:2px">150 Service-Verträge, 7-Tage-Sprint-Modell, €133/Mo Ratenmodell KMU</div></div>
-          <span class="badge" style="background:var(--color-background-info);color:var(--color-text-info);flex-shrink:0">nächste</span>
-        </div>
-        <div class="roadmap-row">
-          <div class="rnum" style="background:var(--color-background-info);color:var(--color-text-info)">03</div>
-          <div style="flex:1"><div style="font-weight:500">DOOH Rollout</div><div style="font-size:13px;color:var(--color-text-secondary);margin-top:2px">50 Smart-Ad-Packs × Top 5 Tourismus-Agenturen Wien, IONOS-Hosting</div></div>
-          <span class="badge" style="background:var(--color-background-info);color:var(--color-text-info);flex-shrink:0">nächste</span>
-        </div>
-        <div class="roadmap-row">
-          <div class="rnum" style="background:var(--color-background-secondary);color:var(--color-text-tertiary)">04</div>
-          <div style="flex:1"><div style="font-weight:500">FlexCo &amp; Scale</div><div style="font-size:13px;color:var(--color-text-secondary);margin-top:2px">Rider-Beteiligung bis 24,99 %, europäische Expansion, Förder-Pipeline €680k</div></div>
-          <span class="badge" style="background:var(--color-background-secondary);color:var(--color-text-tertiary);flex-shrink:0">geplant</span>
-        </div>
-      </div>
-
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div class="card">
-          <p class="section-title"><i class="ti ti-calculator" aria-hidden="true"></i> DB-Kalkulation / Pack</p>
-          <div style="background:var(--color-background-primary);border-radius:var(--border-radius-md);padding:13px;border:0.5px solid var(--color-border-tertiary)">
-            <div style="font-family:var(--font-mono);font-size:12px;color:var(--color-text-secondary);line-height:2">
-              DB = (5h × 3.000/1.000)<br>
-              <span style="padding-left:2em">× 15€ × 20 Tage</span><br>
-              <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:8px;margin-top:4px;color:#BA7517;font-size:20px;font-weight:500">= 4.500 € / Mo</div>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SELINOVA · Admin Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'JetBrains Mono', monospace; background-color: #030305; color: #f0f0f0; }
+        .panel { background: #0a0a0e; border: 1px solid rgba(255,255,255,0.07); }
+    </style>
+</head>
+<body class="p-6">
+    <div class="max-w-7xl mx-auto space-y-6">
+        <div class="panel p-6 rounded-2xl flex justify-between items-center border-purple-500/20">
+            <div>
+                <h1 class="text-2xl font-bold text-white">HQ Admin Console</h1>
+                <p class="text-xs text-purple-400">Global Infrastructure Control Node</p>
             </div>
-          </div>
-        </div>
-        <div class="card">
-          <p class="section-title"><i class="ti ti-currency-euro" aria-hidden="true"></i> Förder-Pipeline</p>
-          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
-            <div><div style="font-size:13px;color:var(--color-text-secondary)">Gründungsstipendium Wien</div><div style="font-size:11px;color:var(--color-text-tertiary)">beantragt</div></div>
-            <div style="font-family:var(--font-mono);color:#1D9E75;font-weight:500">€8.000</div>
-          </div>
-          <div style="display:flex;justify-content:space-between;padding:8px 0">
-            <div><div style="font-size:13px;color:var(--color-text-secondary)">Gesamte Pipeline</div><div style="font-size:11px;color:var(--color-text-tertiary)">identifiziert</div></div>
-            <div style="font-family:var(--font-mono);color:#1D9E75;font-weight:500">€680k</div>
-          </div>
-        </div>
-        <div class="card">
-          <p class="section-title"><i class="ti ti-code" aria-hidden="true"></i> Tech-Stack</p>
-          <div style="display:flex;flex-wrap:wrap;gap:5px">
-            <span style="font-size:11px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:4px 9px;color:var(--color-text-secondary)" v-for="">Next.js</span>
-            <span style="font-size:11px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:4px 9px;color:var(--color-text-secondary)">React</span>
-            <span style="font-size:11px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:4px 9px;color:var(--color-text-secondary)">Raspberry Pi 4</span>
-            <span style="font-size:11px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:4px 9px;color:var(--color-text-secondary)">GPT-4.5</span>
-            <span style="font-size:11px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:4px 9px;color:var(--color-text-secondary)">Claude AI</span>
-            <span style="font-size:11px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:4px 9px;color:var(--color-text-secondary)">IONOS Wien</span>
-            <span style="font-size:11px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:4px 9px;color:var(--color-text-secondary)">IP64</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- AKQUISE -->
-  <div id="tab-akquise" class="tab">
-    <div class="card" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button onclick="setAkqType('gastronomie')" id="ak-gastronomie" class="btn" style="border-radius:20px">
-          <i class="ti ti-tools-kitchen-2" aria-hidden="true"></i> Gastronomie
-        </button>
-        <button onclick="setAkqType('handwerk')" id="ak-handwerk" class="btn" style="border-radius:20px">
-          <i class="ti ti-hammer" aria-hidden="true"></i> Handwerk
-        </button>
-        <button onclick="setAkqType('dooh')" id="ak-dooh" class="btn" style="border-radius:20px">
-          <i class="ti ti-broadcast" aria-hidden="true"></i> DOOH Partner
-        </button>
-      </div>
-      <input id="ak-firma" placeholder="Firmenname für Personalisierung…" style="max-width:220px;font-size:13px">
-    </div>
-
-    <div id="ak-context" class="card" style="background:rgba(186,117,23,.05);border-color:rgba(186,117,23,.25)">
-      <div style="font-size:11px;color:#BA7517;font-weight:500;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Kontext</div>
-      <div id="ak-ctx-text" style="font-size:13px;color:var(--color-text-secondary);line-height:1.6"></div>
-    </div>
-
-    <div id="ak-steps"></div>
-
-    <div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-        <span style="font-size:12px;color:var(--color-text-tertiary)">Gesprächsfortschritt</span>
-        <span id="ak-prog-lbl" style="font-size:12px;font-family:var(--font-mono);color:#BA7517">1/4</span>
-      </div>
-      <div class="prog-track"><div id="ak-prog-fill" class="prog-fill" style="width:25%"></div></div>
-    </div>
-  </div>
-
-  <!-- COACH -->
-  <div id="tab-coach" class="tab">
-    <div class="card" style="margin-bottom:12px;padding:12px 16px">
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <select id="coach-type" style="flex:1;min-width:180px;font-size:14px">
-          <option value="gastronomie">Gastronomie — Provisionen / eigener Shop</option>
-          <option value="handwerk">Handwerk — Premium-Aufträge automatisieren</option>
-          <option value="dooh">DOOH Partner — Smart-Ad-Pack Pitch</option>
-        </select>
-        <div id="coach-controls">
-          <button class="btn btn-gold" onclick="startCall()">
-            <i class="ti ti-player-play" aria-hidden="true"></i> Call starten
-          </button>
-        </div>
-        <div id="coach-timer" style="display:none;align-items:center;gap:10px">
-          <span class="live-dot"></span>
-          <span id="timer-display" style="font-family:var(--font-mono);font-size:20px;color:#E24B4A;min-width:48px">00:00</span>
-          <button class="btn" onclick="endCall()" style="border-color:var(--color-border-danger);color:var(--color-text-danger)">
-            <i class="ti ti-player-stop" aria-hidden="true"></i> Beenden
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="coach-layout">
-      <div>
-        <div id="chat" class="chat-area"></div>
-        <div style="display:flex;gap:8px">
-          <input id="coach-input" placeholder="Starte den Call um den Coach zu aktivieren…" disabled onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendCoach()}">
-          <button id="send-btn" class="btn btn-blue" onclick="sendCoach()" disabled style="white-space:nowrap">
-            <i class="ti ti-send" aria-hidden="true"></i> Senden
-          </button>
-        </div>
-      </div>
-
-      <div class="sidebar-facts">
-        <p class="section-title" style="margin-bottom:8px"><i class="ti ti-antenna" aria-hidden="true"></i> Hintergrund-Fakten</p>
-        <div id="fact-list" style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px"></div>
-        <div id="obj-section" style="display:none">
-          <p style="font-size:11px;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px">Schnell-Einwände</p>
-          <div id="obj-list" style="display:flex;flex-direction:column;gap:6px"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ZAHLUNG -->
-  <div id="tab-zahlung" class="tab">
-    <div class="card">
-      <p class="section-title"><i class="ti ti-user" aria-hidden="true"></i> Kundendaten</p>
-      <div class="grid2">
-        <div><label class="lbl">Kundenname / Firma</label><input id="z-name" placeholder="Restaurant Mustermann GmbH"></div>
-        <div><label class="lbl">E-Mail</label><input id="z-email" placeholder="kunde@beispiel.at"></div>
-      </div>
-      <div style="margin-top:10px"><label class="lbl">Notiz (optional)</label><input id="z-note" placeholder="z.B. Sprint-Start Mo 12.05.2026"></div>
-    </div>
-
-    <p class="section-title"><i class="ti ti-package" aria-hidden="true"></i> Paket auswählen</p>
-    <div class="grid2" style="margin-bottom:1rem">
-      <div class="pkg" onclick="selectPkg('starter')" id="pkg-starter">
-        <div class="pkg-icon"><i class="ti ti-bolt" aria-hidden="true" style="font-size:24px;color:#185FA5"></i></div>
-        <div style="font-weight:500;margin-bottom:4px">Digital Starter</div>
-        <div class="pkg-price">€133</div>
-        <div class="pkg-unit">€/Monat</div>
-        <div class="pkg-desc">7-Tage Website Sprint + SEO-Grundstruktur + native HTML</div>
-      </div>
-      <div class="pkg" onclick="selectPkg('premium')" id="pkg-premium">
-        <div class="pkg-icon"><i class="ti ti-diamond" aria-hidden="true" style="font-size:24px;color:#BA7517"></i></div>
-        <div style="font-weight:500;margin-bottom:4px">Digital Premium</div>
-        <div class="pkg-price">€299</div>
-        <div class="pkg-unit">€/Monat</div>
-        <div class="pkg-desc">Website + GustoFix Integration + KI-Content-Automatisierung</div>
-      </div>
-      <div class="pkg" onclick="selectPkg('dooh')" id="pkg-dooh">
-        <div class="pkg-icon"><i class="ti ti-broadcast" aria-hidden="true" style="font-size:24px;color:#0F6E56"></i></div>
-        <div style="font-weight:500;margin-bottom:4px">Smart-Ad-Pack</div>
-        <div class="pkg-price">€950</div>
-        <div class="pkg-unit">€ einmalig</div>
-        <div class="pkg-desc">1× DOOH-Einheit, Setup, Dashboard-Zugang, Geofencing</div>
-      </div>
-      <div class="pkg" onclick="selectPkg('fleet')" id="pkg-fleet">
-        <div class="pkg-icon"><i class="ti ti-rocket" aria-hidden="true" style="font-size:24px;color:#A32D2D"></i></div>
-        <div style="font-weight:500;margin-bottom:4px">Fleet Vienna</div>
-        <div class="pkg-price">€4.500</div>
-        <div class="pkg-unit">€/Monat</div>
-        <div class="pkg-desc">5 Rider + volles DOOH-Management + KI-Targeting</div>
-      </div>
-    </div>
-
-    <div id="z-panel" style="display:none">
-      <div class="card" style="border-color:rgba(186,117,23,.4);background:rgba(186,117,23,.04)">
-        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:14px;align-items:flex-start">
-          <div>
-            <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:3px;text-transform:uppercase;letter-spacing:.08em">Ausgewählt</div>
-            <div style="font-weight:500;font-size:16px" id="z-sel-name"></div>
-            <div style="font-size:28px;font-weight:500;font-family:var(--font-mono);color:#BA7517;margin:4px 0" id="z-sel-price"></div>
-            <div style="font-size:13px;color:var(--color-text-secondary)" id="z-sel-desc"></div>
-            <div id="z-sel-client" style="font-size:13px;color:#BA7517;margin-top:6px;display:none"></div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <button class="btn btn-gold" onclick="genPaypal()">
-              <i class="ti ti-brand-paypal" aria-hidden="true"></i> PayPal-Link generieren
+            <button onclick="loadAllAdminData()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-xl text-xs transition-colors">
+                <i class="fas fa-sync-alt mr-2"></i> Cloud-Sync aktualisieren
             </button>
-            <button class="btn" onclick="copyInvoice()">
-              <i class="ti ti-copy" aria-hidden="true"></i> Rechnung kopieren
-            </button>
-          </div>
         </div>
 
-        <div id="z-paypal-section" style="display:none">
-          <div style="font-size:11px;color:#BA7517;font-weight:500;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">
-            <i class="ti ti-link" aria-hidden="true"></i> PayPal Zahlungslink
-          </div>
-          <div class="pay-link" id="z-paypal-link"></div>
-          <div class="row-gap" style="margin-bottom:14px">
-            <button class="btn btn-gold" onclick="copyPaypal()" id="z-copy-btn">
-              <i class="ti ti-copy" aria-hidden="true"></i> Kopieren
-            </button>
-            <button class="btn btn-blue" onclick="openPaypal()">
-              <i class="ti ti-external-link" aria-hidden="true"></i> Öffnen
-            </button>
-          </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="panel p-5 rounded-xl text-center">
+                <span class="text-[10px] text-neutral-500 block">TOTAL LEADS IN CLOUD</span>
+                <span id="kpi-total" class="text-2xl font-bold text-white">0</span>
+            </div>
+            <div class="panel p-5 rounded-xl text-center">
+                <span class="text-[10px] text-neutral-500 block">BEARBEITET (IN PROGRESS)</span>
+                <span id="kpi-progress" class="text-2xl font-bold text-purple-400">0</span>
+            </div>
+            <div class="panel p-5 rounded-xl text-center">
+                <span class="text-[10px] text-neutral-500 block">CONVERTED (SUCCESS)</span>
+                <span id="kpi-closed" class="text-2xl font-bold text-emerald-400">0</span>
+            </div>
         </div>
 
-        <div style="background:var(--color-background-primary);border-radius:var(--border-radius-md);padding:14px;border:0.5px solid var(--color-border-tertiary)">
-          <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">Rechnungsvorschau</div>
-          <pre class="invoice" id="z-invoice"></pre>
+        <div class="panel p-6 rounded-2xl">
+            <h3 class="text-sm font-bold text-neutral-400 uppercase tracking-wider mb-4">Live Pipeline Monitor</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-neutral-800 text-neutral-500">
+                            <th class="pb-3">ID</th>
+                            <th class="pb-3">Name</th>
+                            <th class="pb-3">Zugeordneter Agent</th>
+                            <th class="pb-3">CRM Status</th>
+                            <th class="pb-3">Letzter Anruf</th>
+                            <th class="pb-3">Aktion</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body" class="divide-y divide-neutral-900 text-neutral-300">
+                        </tbody>
+                </table>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
-</div>
 
-<script>
-const SCRIPTS = {
-  gastronomie:{
-    ctx:'Branche: Gastronomie & Lieferservice — Problem: Zu hohe Provisionen (ø 30%) an Lieferando/Foodora, keine eigene Kundenkartei',
-    steps:[
-      {t:'Aufhänger',i:'ti-target',text:'„Guten Tag, ich frage direkt nach der Geschäftsführung. Ich melde mich, weil ich mir Ihre Online-Präsenz im Bereich Gastronomie genau angesehen habe. Sie machen hervorragende Arbeit vor Ort — aber Ihr digitales Fundament spiegelt noch nicht ganz das wider, was Sie operativ leisten."'},
-      {t:'Problem & Lösung',i:'ti-bolt',text:'„Aktuell zahlen Sie jeden Tag bares Geld an Plattformen wie Lieferando oder Foodora. Wir bauen Ihnen keine Standard-Website aus dem Baukasten. Wir erschaffen eine architektonisch durchdachte Struktur aus reinem, performantem HTML-Code — der zu 100 % Ihnen gehört, blitzschnell bei Google rankt und Sie völlig unabhängig macht."'},
-      {t:'Der Mehrwert',i:'ti-diamond',text:'„Ein eigener, provisionsfreier Online-Bestellshop, direkt eingebunden. Ihre Kunden bestellen bei IHNEN. Das Geld bleibt bei IHNEN. Kein reiner Kostenpunkt — das ist ein digitaler Mitarbeiter, der 24/7 für Sie arbeitet und direkt Umsatz generiert."'},
-      {t:'Call to Action',i:'ti-calendar',text:'„Wann passt es Ihnen diese Woche für knackige 10 Minuten, damit ich Ihnen auf dem Bildschirm zeigen kann, wie diese digitale Architektur für Sie aussieht — und welchen ROI sie bringt?"'}
-    ],
-    facts:['Lieferando nimmt ø 30 % Provision pro Bestellung','Restaurants mit eigenem Shop steigern Marge um ~45 %','7-Tage-Sprint: Website live in einer Woche','€133/Mo = weniger als eine Stromrechnung'],
-    objs:['Zu teuer','Haben schon eine Website','Kein Interesse','Wir arbeiten mit Lieferando']
-  },
-  handwerk:{
-    ctx:'Branche: Dachdecker, Spengler & Premium-Handwerk — Problem: Gelistet in Verzeichnissen, aber keine conversion-starke Präsenz für lukrative Großaufträge',
-    steps:[
-      {t:'Aufhänger',i:'ti-target',text:'„Guten Tag, ich spreche direkt mit der Geschäftsführung. Ich habe mir Ihre Online-Präsenz im Bereich Premium-Handwerk genau angesehen. Sie leisten ausgezeichnete Arbeit — aber Ihr digitales Fundament bringt Ihnen noch nicht die Aufträge, die Sie wirklich verdienen."'},
-      {t:'Problem & Lösung',i:'ti-bolt',text:'„Sie sind in Verzeichnissen gelistet — aber es fehlt eine conversion-starke Präsenz, die automatisiert die wirklich lukrativen Aufträge, Komplettsanierungen und Großprojekte, anzieht. Wir bauen Ihnen kein Baukasten-System, sondern eine durchdachte digitale Struktur aus reinem HTML."'},
-      {t:'Der Mehrwert',i:'ti-diamond',text:'„Ein smartes Anfrage- und Terminbuchungssystem, das unqualifizierte Anfragen vorab herausfiltert und Ihnen nur die kaufbereiten Premium-Kunden direkt in den Kalender legt. Keine Zeitverschwendung mehr mit Interessenten ohne Budget."'},
-      {t:'Call to Action',i:'ti-calendar',text:'„Wann passt es Ihnen diese Woche für 10 Minuten, damit ich Ihnen zeigen kann, wie dieses System für Ihren Betrieb aussieht und wie schnell es sich amortisiert?"'}
-    ],
-    facts:['72 % der Premium-Aufträge kommen über Google-Suche','Conversion-Rate ohne optimierte Website: unter 1 %','Automatisches Lead-Filtering spart ~5h/Woche','Ein Premium-Auftrag deckt ROI von 24+ Monaten'],
-    objs:['Haben genug Aufträge','Kein Budget','Mein Neffe macht das','Kein Interesse']
-  },
-  dooh:{
-    ctx:'Branche: DOOH / Smart-Ad-Pack Partner — TKP €85, CAPEX €950, Revenue €4.500/Mo, Amortisation < 1 Monat',
-    steps:[
-      {t:'Aufhänger',i:'ti-target',text:'„Stellen Sie sich vor: Ihre Werbebotschaft erreicht eine Gruppe von 50 Japanern am Stephansplatz — auf Japanisch. Vollautomatisch. In dem Moment, in dem sie vor Ihrem Betrieb stehen. Das ist kein Marketing mehr. Das ist chirurgische Präzision."'},
-      {t:'Problem & Lösung',i:'ti-bolt',text:'„Klassische Außenwerbung wie Gewista verkauft Masse. Wir verkaufen Relevanz. Unsere Smart-Ad-Packs kombinieren Geofencing, Predictive Data Targeting und KI-gestützte Sprachadaption auf Raspberry-Pi-Basis mit 2500-Nits-Panels für volle Sonnenlicht-Lesbarkeit."'},
-      {t:'Der Mehrwert',i:'ti-diamond',text:'„5.000 Sichtkontakte pro Stunde, TKP €85. CAPEX rund €950 pro Einheit — Amortisation in unter einem Monat. Durch Partnerschaften mit Tourismus-Agenturen kennen wir Gruppen im Voraus. Das System schaltet vollautomatisch auf die jeweilige Muttersprache um."'},
-      {t:'Call to Action',i:'ti-calendar',text:'„Ich zeige Ihnen gerne das Dashboard und die Hardware-Spezifikationen in einem 15-Minuten-Call. Wann haben Sie diese Woche ein Fenster? Die ersten Zeitslots bei unseren Test-Partnern in der Innenstadt sind bereits vergeben."'}
-    ],
-    facts:['Gewista TKP Wien: €6–12 — SELINOVATECH: €85 (Qualität statt Masse)','Amortisation < 1 Monat (€950 CAPEX vs €4.500/Mo Revenue)','Raspberry Pi 4 + LTE-Uplink + IP64 zertifiziert','5-Rider-Flotte = ~€69.000 Brutto-Umsatz/Monat'],
-    objs:['Was ist DOOH?','Zu teuer','Wir haben schon Gewista','Kein Budget']
-  }
-};
+    <script>
+        const SUPABASE_URL = "https://lzqerupigfyorsdbmjtc.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_hXNSoqqK9VYXqYKEI8ltjg_qNnz5Mnw";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const PKGS = {
-  starter:{name:'Digital Starter',price:'133',unit:'€/Monat',desc:'7-Tage Website Sprint + SEO-Grundstruktur + native HTML'},
-  premium:{name:'Digital Premium',price:'299',unit:'€/Monat',desc:'Website + GustoFix Integration + KI-Content-Automatisierung'},
-  dooh:{name:'Smart-Ad-Pack',price:'950',unit:'€ einmalig',desc:'1× DOOH-Einheit, Setup, Dashboard-Zugang, Geofencing'},
-  fleet:{name:'Fleet Vienna',price:'4.500',unit:'€/Monat',desc:'5 Rider + volles DOOH-Management + KI-Targeting'}
-};
+        async function loadAllAdminData() {
+            try {
+                const { data: leads, error } = await supabaseClient
+                    .from('leads')
+                    .select('*')
+                    .order('id', { ascending: true });
 
-const AI_SYS = {
-  gastronomie:`Du coachst einen SELINOVATECH-Vertriebler live beim Telefonat mit einem GASTRONOMEN in Wien.
-Produkt: HTML-Websites, 7-Tage-Sprint, €133/Mo, provisionsfreier Bestellshop.
-Haupthebel: Lieferando nimmt 30% Provision — wir bauen eigenen Shop, Geld bleibt beim Wirt.
-Typische Einwände: "Zu teuer", "Haben schon Website", "Kein Interesse", "Wir arbeiten mit Lieferando".
-Regel: Antworte immer Deutsch. Max 3-4 kurze Sätze. Gib sofort verwendbare Satzformulierungen.
-Format: [Einwand-Typ]: [Deine Formulierung]. Sei direkt, kein Blabla.`,
-  handwerk:`Du coachst einen SELINOVATECH-Vertriebler live beim Telefonat mit einem HANDWERKSBETRIEB.
-Produkt: HTML-Websites, Anfrage-Filtersystem, nur Premium-Kunden ins CRM.
-Haupthebel: Automatisiertes Lead-Filtering spart 5h/Woche, zieht lukrative Großaufträge an.
-Typische Einwände: "Haben genug Aufträge", "Mein Neffe macht das", "Kein Budget".
-Regel: Antworte immer Deutsch. Max 3-4 Sätze. Sofort verwendbare Formulierungen.`,
-  dooh:`Du coachst einen SELINOVATECH-Vertriebler live beim Pitch für DOOH/Investor.
-Produkt: Smart-Ad-Packs, Raspberry Pi 4, Geofencing, KI-Sprachadaption, TKP €85.
-Zahlen: CAPEX €950, Revenue €4.500/Mo, Amortisation <1 Monat. 5 Rider = €69.000/Mo.
-Typische Einwände: "Was ist DOOH?", "Zu teuer", "Wir haben Gewista", "Kein Budget".
-Regel: Antworte immer Deutsch. Max 3-4 Sätze. Präzise Formulierungen.`
-};
+                if (error) throw error;
 
-// TAB SWITCHING
-function switchTab(id){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));
-  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('act'));
-  document.getElementById('tab-'+id).classList.add('act');
-  const idx=['cockpit','akquise','coach','zahlung'].indexOf(id);
-  document.querySelectorAll('.nav button')[idx].classList.add('act');
-}
+                // Update KPIs
+                document.getElementById('kpi-total').textContent = leads.length;
+                document.getElementById('kpi-progress').textContent = leads.filter(l => l.lead_status === 'In Progress' || l.lead_status === 'Follow-up').length;
+                document.getElementById('kpi-closed').textContent = leads.filter(l => l.lead_status === 'Closed').length;
 
-// AKQUISE
-let akqType='gastronomie', akqActive=0;
-function setAkqType(t){
-  akqType=t;akqActive=0;
-  ['gastronomie','handwerk','dooh'].forEach(k=>{
-    const b=document.getElementById('ak-'+k);
-    b.style.background=k===t?'rgba(186,117,23,.12)':'';
-    b.style.borderColor=k===t?'rgba(186,117,23,.5)':'';
-    b.style.color=k===t?'#BA7517':'';
-  });
-  renderAkq();
-}
-function renderAkq(){
-  const s=SCRIPTS[akqType];
-  document.getElementById('ak-ctx-text').textContent=s.ctx;
-  const firma=document.getElementById('ak-firma').value;
-  const container=document.getElementById('ak-steps');
-  container.innerHTML='';
-  s.steps.forEach((step,i)=>{
-    const isAct=i===akqActive,isDone=i<akqActive;
-    const div=document.createElement('div');
-    div.className='step'+(isAct?' act':isDone?' done':'');
-    div.onclick=()=>{akqActive=i;renderAkq();};
-    const numContent=isDone?'<i class="ti ti-check" aria-hidden="true"></i>':`<i class="ti ${step.i}" aria-hidden="true"></i>`;
-    let bodyHTML='';
-    if(isAct){
-      const txt=firma?step.text.replace(/Ihnen/,'Ihnen ('+firma+')'):step.text;
-      bodyHTML=`<div class="step-body">
-        <div class="quote-box">${txt}</div>
-        <div class="row-gap">
-          <button class="btn btn-gold" style="font-size:12px;padding:8px 13px" onclick="copyStep(event,${i})">
-            <i class="ti ti-copy" aria-hidden="true"></i> Kopieren
-          </button>
-          ${i<s.steps.length-1?`<button class="btn" style="font-size:12px;padding:8px 13px" onclick="nextStep(event)">
-            Nächster Schritt <i class="ti ti-arrow-right" aria-hidden="true"></i>
-          </button>`:''}
-        </div>
-      </div>`;
-    }
-    div.innerHTML=`<div class="step-hd">
-      <div class="step-num">${numContent}</div>
-      <div><span style="font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:${isAct?'#BA7517':'var(--color-text-secondary)'}">${String(i+1).padStart(2,'0')} · ${step.t}</span></div>
-      <span style="margin-left:auto;font-size:13px;color:var(--color-text-tertiary)">${isAct?'▾':'›'}</span>
-    </div>${bodyHTML}`;
-    container.appendChild(div);
-  });
-  const total=s.steps.length;
-  document.getElementById('ak-prog-fill').style.width=((akqActive+1)/total*100)+'%';
-  document.getElementById('ak-prog-lbl').textContent=(akqActive+1)+'/'+total;
-}
-function copyStep(e,i){
-  e.stopPropagation();
-  const firma=document.getElementById('ak-firma').value;
-  const txt=firma?SCRIPTS[akqType].steps[i].text.replace(/Ihnen/,'Ihnen ('+firma+')'):SCRIPTS[akqType].steps[i].text;
-  navigator.clipboard.writeText(txt);
-  const btn=e.currentTarget;
-  btn.innerHTML='<i class="ti ti-check" aria-hidden="true"></i> Kopiert!';
-  setTimeout(()=>{btn.innerHTML='<i class="ti ti-copy" aria-hidden="true"></i> Kopieren';},2000);
-}
-function nextStep(e){
-  e.stopPropagation();
-  if(akqActive<SCRIPTS[akqType].steps.length-1){akqActive++;renderAkq();}
-}
-document.getElementById('ak-firma').addEventListener('input',renderAkq);
-setAkqType('gastronomie');
+                // Render Table
+                const tbody = document.getElementById('admin-table-body');
+                tbody.innerHTML = '';
 
-// KI COACH
-let callActive=false, timerInt=null, timerSec=0;
-function startCall(){
-  callActive=true;timerSec=0;
-  document.getElementById('coach-controls').style.display='none';
-  document.getElementById('coach-timer').style.display='flex';
-  document.getElementById('coach-input').disabled=false;
-  document.getElementById('coach-input').placeholder='Was sagt der Kunde? Enter = senden…';
-  document.getElementById('send-btn').disabled=false;
-  document.getElementById('coach-type').disabled=true;
-  timerInt=setInterval(()=>{
-    timerSec++;
-    const m=String(Math.floor(timerSec/60)).padStart(2,'0');
-    const s=String(timerSec%60).padStart(2,'0');
-    document.getElementById('timer-display').textContent=m+':'+s;
-  },1000);
-  renderFacts();
-  document.getElementById('obj-section').style.display='block';
-  renderObjs();
-  addMsg('ai','Call gestartet — Typ: '+document.querySelector('#coach-type option:checked').text+'\n\nIch bin aktiv im Hintergrund. Tippe, was der Kunde sagt, und ich liefere sofort die optimale Formulierung. Nutze die Schnell-Einwände rechts für typische Situationen.');
-  document.getElementById('coach-input').focus();
-}
-function endCall(){
-  callActive=false;clearInterval(timerInt);
-  document.getElementById('coach-controls').style.display='block';
-  document.getElementById('coach-timer').style.display='none';
-  document.getElementById('coach-input').disabled=true;
-  document.getElementById('coach-input').placeholder='Starte den Call um den Coach zu aktivieren…';
-  document.getElementById('send-btn').disabled=true;
-  document.getElementById('coach-type').disabled=false;
-  const m=String(Math.floor(timerSec/60)).padStart(2,'0');
-  const s=String(timerSec%60).padStart(2,'0');
-  addMsg('ai','Call beendet nach '+m+':'+s+'.\n\nNext Steps: Follow-up-E-Mail innerhalb 2h senden, Demo-Termin bestätigen, Zahlung über Dashboard vorbereiten.');
-}
-function renderFacts(){
-  const t=document.getElementById('coach-type').value;
-  const fl=document.getElementById('fact-list');
-  fl.innerHTML='';
-  SCRIPTS[t].facts.forEach(f=>{
-    const d=document.createElement('div');d.className='fact';d.textContent=f;fl.appendChild(d);
-  });
-}
-function renderObjs(){
-  const t=document.getElementById('coach-type').value;
-  const ol=document.getElementById('obj-list');
-  ol.innerHTML='';
-  SCRIPTS[t].objs.forEach(o=>{
-    const b=document.createElement('button');b.className='obj-btn';
-    b.innerHTML='<i class="ti ti-corner-down-left" aria-hidden="true" style="font-size:13px;margin-right:4px"></i>'+o;
-    b.onclick=()=>{
-      document.getElementById('coach-input').value=o;
-      document.getElementById('coach-input').focus();
-    };
-    ol.appendChild(b);
-  });
-}
-document.getElementById('coach-type').addEventListener('change',()=>{renderFacts();if(callActive)renderObjs();});
-renderFacts();
+                leads.forEach(lead => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-neutral-900/40 transition-colors";
+                    tr.innerHTML = `
+                        <td class="py-3 font-bold text-neutral-500">#${lead.id}</td>
+                        <td class="py-3 font-bold text-white">${lead.name}</td>
+                        <td class="py-3">
+                            <select onchange="reassignLeadAgent(${lead.id}, this.value)" class="bg-neutral-900 border border-neutral-800 p-1 rounded text-neutral-300 text-[11px]">
+                                <option value="DANYVITO" ${lead.assigned_agent === 'DANYVITO' ? 'selected' : ''}>DANYVITO</option>
+                                <option value="AGENT007" ${lead.assigned_agent === 'AGENT007' ? 'selected' : ''}>AGENT007</option>
+                                <option value="UNASSIGNED" ${lead.assigned_agent === 'UNASSIGNED' ? 'selected' : ''}>UNASSIGNED</option>
+                            </select>
+                        </td>
+                        <td class="py-3">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${lead.lead_status === 'Closed' ? 'bg-emerald-500/10 text-emerald-400' : lead.lead_status === 'In Progress' ? 'bg-purple-500/10 text-purple-400' : 'bg-neutral-800 text-neutral-400'}">
+                                ${lead.lead_status || 'Open'}
+                            </span>
+                        </td>
+                        <td class="py-3 text-neutral-500 text-[11px]">${lead.last_called_at ? new Date(lead.last_called_at).toLocaleString('de-DE') : 'Nie'}</td>
+                        <td class="py-3"><button onclick="alert('Notizen: ${lead.notes || 'Keine vorhanden'}')" class="text-neutral-400 hover:text-white"><i class="fas fa-eye"></i> Logs</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
 
-function addMsg(role,text){
-  const chat=document.getElementById('chat');
-  const wrap=document.createElement('div');
-  wrap.style.cssText='display:flex;flex-direction:column';
-  const lbl=document.createElement('div');
-  lbl.className='msg-lbl';
-  lbl.style.color=role==='ai'?'#185FA5':'#BA7517';
-  lbl.textContent=role==='ai'?'Coach KI':'Kunde';
-  if(role==='user')lbl.style.textAlign='right';
-  const msg=document.createElement('div');
-  msg.className=role==='ai'?'msg-ai':'msg-user';
-  msg.textContent=text;
-  wrap.appendChild(lbl);wrap.appendChild(msg);
-  chat.appendChild(wrap);
-  chat.scrollTop=chat.scrollHeight;
-}
-function addTyping(){
-  const chat=document.getElementById('chat');
-  const wrap=document.createElement('div');
-  wrap.id='typing-indicator';wrap.style.cssText='display:flex;flex-direction:column';
-  const lbl=document.createElement('div');lbl.className='msg-lbl';lbl.style.color='#185FA5';lbl.textContent='Coach KI';
-  const msg=document.createElement('div');msg.className='msg-ai';
-  msg.innerHTML='<div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
-  wrap.appendChild(lbl);wrap.appendChild(msg);
-  chat.appendChild(wrap);
-  chat.scrollTop=chat.scrollHeight;
-  return wrap;
-}
-async function sendCoach(){
-  const inp=document.getElementById('coach-input');
-  const txt=inp.value.trim();
-  if(!txt||!callActive)return;
-  inp.value='';
-  addMsg('user',txt);
-  document.getElementById('send-btn').disabled=true;
-  const typing=addTyping();
-  const t=document.getElementById('coach-type').value;
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:AI_SYS[t],
-        messages:[{role:'user',content:'Kunde sagt gerade: "'+txt+'"\n\nWas antworte ich?'}]
-      })
-    });
-    const data=await res.json();
-    const reply=data.content?.[0]?.text||'Kurze Analyse-Pause — halte die Linie.';
-    typing.remove();
-    addMsg('ai',reply);
-  }catch(e){
-    typing.remove();
-    addMsg('ai','Verbindungsproblem. Nutze das Skript als Backup — du schaffst das.');
-  }
-  document.getElementById('send-btn').disabled=false;
-  inp.focus();
-}
+            } catch (err) {
+                console.error("Admin Synchronisationsfehler:", err.message);
+            }
+        }
 
-// ZAHLUNG
-let selectedPkg=null;
-function selectPkg(id){
-  selectedPkg=id;
-  Object.keys(PKGS).forEach(k=>{
-    const el=document.getElementById('pkg-'+k);
-    el.classList.toggle('sel',k===id);
-  });
-  const pkg=PKGS[id];
-  document.getElementById('z-sel-name').textContent=pkg.name;
-  document.getElementById('z-sel-price').textContent='€'+pkg.price;
-  document.getElementById('z-sel-desc').textContent=pkg.unit+' · '+pkg.desc;
-  updateClientDisplay();
-  document.getElementById('z-paypal-section').style.display='none';
-  document.getElementById('z-panel').style.display='block';
-  updateInvoice();
-}
-function updateClientDisplay(){
-  const n=document.getElementById('z-name').value;
-  const c=document.getElementById('z-sel-client');
-  if(n){c.textContent='Kunde: '+n;c.style.display='block';}
-  else c.style.display='none';
-}
-function updateInvoice(){
-  if(!selectedPkg)return;
-  const pkg=PKGS[selectedPkg];
-  const n=document.getElementById('z-name').value||'—';
-  const e=document.getElementById('z-email').value||'—';
-  const note=document.getElementById('z-note').value;
-  const d=new Date().toLocaleDateString('de-AT');
-  document.getElementById('z-invoice').textContent=
-`SELINOVATECH – RECHNUNG
-${'─'.repeat(38)}
-Kunde:       ${n}
-E-Mail:      ${e}
-Paket:       ${pkg.name}
-Betrag:      €${pkg.price} (${pkg.unit})
-Leistung:    ${pkg.desc}${note?'\nNotiz:       '+note:''}
-${'─'.repeat(38)}
-SELINOVATECH | Wien | ${d}
-The future is loaded.`;
-}
-['z-name','z-email','z-note'].forEach(id=>{
-  document.getElementById(id).addEventListener('input',()=>{updateClientDisplay();updateInvoice();});
-});
-function genPaypal(){
-  if(!selectedPkg)return;
-  const pkg=PKGS[selectedPkg];
-  const n=document.getElementById('z-name').value;
-  const note=document.getElementById('z-note').value;
-  const parts=['SELINOVATECH',pkg.name];
-  if(n)parts.push(n);if(note)parts.push(note);
-  const link='https://www.paypal.com/paypalme/selinovatech/'+pkg.price.replace('.','')+'EUR?note='+encodeURIComponent(parts.join(' – '));
-  document.getElementById('z-paypal-link').textContent=link;
-  document.getElementById('z-paypal-section').style.display='block';
-}
-function copyPaypal(){
-  navigator.clipboard.writeText(document.getElementById('z-paypal-link').textContent);
-  const btn=document.getElementById('z-copy-btn');
-  btn.innerHTML='<i class="ti ti-check" aria-hidden="true"></i> Kopiert!';
-  setTimeout(()=>{btn.innerHTML='<i class="ti ti-copy" aria-hidden="true"></i> Kopieren';},2000);
-}
-function openPaypal(){window.open(document.getElementById('z-paypal-link').textContent,'_blank');}
-function copyInvoice(){
-  navigator.clipboard.writeText(document.getElementById('z-invoice').textContent);
-}
-</script>
+        async function reassignLeadAgent(leadId, newAgent) {
+            try {
+                const { error } = await supabaseClient
+                    .from('leads')
+                    .update({ assigned_agent: newAgent })
+                    .eq('id', leadId);
+
+                if (error) throw error;
+                console.log(`Lead #${leadId} wurde erfolgreich an ${newAgent} übergeben.`);
+            } catch (err) {
+                alert('Zuweisung fehlgeschlagen: ' + err.message);
+            }
+        }
+
+        window.onload = loadAllAdminData;
+    </script>
+</body>
+</html>
