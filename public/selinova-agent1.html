@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SELINOVA · Admin HQ</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070a;--surface:#0e0e14;--card:#14141c;--border:rgba(255,255,255,0.07);
+  --accent:#BA7517;--accent-dim:rgba(186,117,23,.12);--accent-glow:rgba(186,117,23,.25);
+  --grn:#1D9E75;--grn-dim:rgba(29,158,117,.12);
+  --text:#f0f0f0;--muted:#6b7280;--danger:#dc2626;
+  --font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace
+}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text)}
+/* Login */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg)}
+.login-box{width:100%;max-width:380px}
+.login-logo{text-align:center;margin-bottom:40px}
+.login-title{font-size:36px;font-weight:700;letter-spacing:-.04em}
+.login-gold{color:var(--accent)}
+.login-sub{font-size:11px;letter-spacing:.2em;color:var(--muted);font-family:var(--mono);margin-top:4px}
+.login-field{margin-bottom:12px}
+.login-label{font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--muted);display:block;margin-bottom:5px}
+input,textarea,select{background:var(--card);border:0.5px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);font-size:14px;padding:11px 14px;width:100%;outline:none;transition:border-color .2s}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+select option{background:var(--card)}
+.btn-gold{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);transition:opacity .2s;width:100%}
+.btn-gold:hover{opacity:.9}
+.btn-gold:active{opacity:.8}
+.btn-sec{background:var(--card);color:var(--text);border:0.5px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);transition:background .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-sec:hover{background:#1a1a24}
+.btn-grn{background:var(--grn);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);transition:opacity .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-grn:hover{opacity:.9}
+.login-err{text-align:center;font-size:12px;color:var(--danger);margin-top:8px;display:none}
+/* App layout */
+.app-wrap{display:none;min-height:100vh}
+/* Sidebar */
+.sidebar{width:220px;background:var(--surface);border-right:0.5px solid var(--border);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:100}
+.sb-logo{padding:24px 20px 20px;border-bottom:0.5px solid var(--border)}
+.sb-logo-title{font-size:22px;font-weight:700;letter-spacing:-.03em}
+.sb-logo-sub{font-size:9px;letter-spacing:.2em;color:var(--muted);font-family:var(--mono);margin-top:2px}
+.sb-nav{flex:1;padding:12px 8px;overflow-y:auto}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:.15em;color:var(--muted);padding:12px 12px 6px;text-transform:uppercase}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);transition:all .15s;margin-bottom:2px;border:none;background:none;width:100%;font-family:var(--font);text-align:left}
+.sb-item:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.sb-item.active{background:var(--accent-dim);color:var(--accent)}
+.sb-item i{width:16px;text-align:center;font-size:14px}
+.sb-bottom{padding:12px;border-top:0.5px solid var(--border)}
+.sb-agent{background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12px}
+.sb-agent-name{font-weight:600;color:var(--accent);font-family:var(--mono)}
+/* Main content */
+.main-area{margin-left:220px;min-height:100vh}
+.top-bar{padding:20px 28px 0;border-bottom:0.5px solid var(--border);background:rgba(7,7,10,.95);position:sticky;top:0;z-index:50;backdrop-filter:blur(20px)}
+.top-bar-title{font-size:22px;font-weight:700;letter-spacing:-.02em;padding-bottom:20px}
+/* Tabs */
+.tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border);margin:0 -28px;padding:0 28px}
+.tab-btn{font-size:13px;font-weight:500;padding:12px 16px;border:none;background:none;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;font-family:var(--font);white-space:nowrap;transition:all .15s}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-btn:hover:not(.active){color:var(--text)}
+/* Content */
+.content{padding:24px 28px}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+/* Cards */
+.card{background:var(--card);border:0.5px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:12px}
+/* KPIs */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:24px}
+.kpi{background:var(--card);border:0.5px solid var(--border);border-radius:14px;padding:16px;text-align:center}
+.kpi-val{font-size:32px;font-weight:700;font-family:var(--mono);letter-spacing:-.04em}
+.kpi-lbl{font-size:10px;font-weight:600;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:4px}
+/* Table */
+.tbl-wrap{overflow-x:auto;border-radius:14px;border:0.5px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:rgba(255,255,255,.03);border-bottom:0.5px solid var(--border)}
+th{text-align:left;padding:10px 14px;font-size:10px;font-weight:600;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;white-space:nowrap}
+tbody tr{border-bottom:0.5px solid var(--border);transition:background .1s}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+tbody tr:last-child{border-bottom:none}
+td{padding:12px 14px;vertical-align:middle}
+/* Badge */
+.badge{display:inline-flex;align-items:center;font-size:9px;font-weight:700;letter-spacing:.06em;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.b-open{background:rgba(29,158,117,.12);color:#1D9E75}
+.b-called{background:rgba(245,158,11,.12);color:#f59e0b}
+.b-interested{background:rgba(59,130,246,.12);color:#60a5fa}
+.b-callback{background:rgba(168,85,247,.12);color:#c084fc}
+.b-termin{background:rgba(6,182,212,.12);color:#22d3ee}
+.b-closed{background:rgba(29,158,117,.2);color:#1D9E75}
+.b-rejected{background:rgba(220,38,38,.12);color:#f87171}
+/* Filter */
+.filter-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.filter-chip{font-size:11px;font-weight:600;padding:6px 14px;border-radius:20px;border:0.5px solid var(--border);color:var(--muted);cursor:pointer;background:none;font-family:var(--font);transition:all .15s}
+.filter-chip.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+/* Import zone */
+.drop-zone{border:1.5px dashed var(--border);border-radius:14px;padding:40px;text-align:center;cursor:pointer;transition:all .2s}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:var(--accent-dim)}
+.drop-zone i{font-size:32px;color:var(--muted);margin-bottom:12px}
+/* Akquise steps */
+.step-card{border:0.5px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;cursor:pointer;transition:border-color .2s}
+.step-card:hover{border-color:var(--accent)}
+.step-card.active{border-color:var(--accent);background:var(--accent-dim)}
+.step-hd{display:flex;align-items:center;gap:12px;padding:14px 16px}
+.step-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;background:rgba(255,255,255,.06);color:var(--muted);flex-shrink:0}
+.step-card.active .step-num{background:var(--accent);color:#fff}
+.step-body{padding:0 16px 14px}
+.quote{background:var(--surface);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:14px 16px;font-size:14px;line-height:1.75;margin-bottom:10px}
+/* Chat */
+.chat-wrap{max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:12px;padding-right:2px}
+.msg-ai{background:rgba(24,95,165,.12);border:0.5px solid rgba(24,95,165,.3);border-radius:12px;padding:10px 14px;font-size:13px;line-height:1.65;max-width:90%}
+.msg-user{background:var(--accent-dim);border:0.5px solid rgba(186,117,23,.3);border-radius:12px;padding:10px 14px;font-size:13px;line-height:1.65;max-width:90%;margin-left:auto}
+.msg-lbl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px;color:var(--muted)}
+.typing-dots{display:flex;gap:3px;padding:4px 0}
+.dot{width:5px;height:5px;border-radius:50%;background:#378ADD;animation:bounce 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
+/* PayPal pkg */
+.pkg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:16px}
+.pkg{border:0.5px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s;background:var(--card)}
+.pkg:hover{border-color:var(--accent)}
+.pkg.sel{border:2px solid var(--accent);background:var(--accent-dim)}
+.pkg-price{font-size:26px;font-weight:700;font-family:var(--mono);color:var(--accent)}
+/* Misc */
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--grn);display:inline-block;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+.toast-global{position:fixed;bottom:24px;right:24px;background:var(--grn);color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;z-index:999;pointer-events:none;opacity:0;transition:opacity .3s}
+.toast-global.show{opacity:1}
+/* Progress bar */
+.prog-bar{height:4px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.prog-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .4s}
+/* Scrollbar */
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-track{background:transparent}
+/* Responsive */
+@media(max-width:768px){
+  .sidebar{width:100%;height:auto;position:static}
+  .main-area{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════ LOGIN ════════════════════════════ -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <div class="login-logo">
+      <div style="width:60px;height:60px;background:var(--accent);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px"><i class="fas fa-shield-alt"></i></div>
+      <div class="login-title">SELINO<span class="login-gold">VA</span></div>
+      <div class="login-sub">ADMIN TERMINAL · HQ ACCESS ONLY</div>
+    </div>
+    <div class="login-field">
+      <label class="login-label">ADMIN ID</label>
+      <input type="text" id="l-id" placeholder="Admin ID" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-field" style="margin-bottom:16px">
+      <label class="login-label">PASSWORT</label>
+      <input type="password" id="l-pw" placeholder="Passwort" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-gold" onclick="doLogin()"><i class="fas fa-lock-open"></i> &nbsp;Zugang anfordern</button>
+    <div class="login-err" id="l-err">Zugriff verweigert. Falsche Credentials.</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ APP ════════════════════════════ -->
+<div class="app-wrap" id="app-wrap">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-title">SELINO<span style="color:var(--accent)">VA</span></div>
+      <div class="sb-logo-sub">HQ ADMIN</div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-section">ÜBERSICHT</div>
+      <button class="sb-item active" id="si-cockpit" onclick="showPage('cockpit')"><i class="fas fa-chart-pie"></i> Cockpit</button>
+      <button class="sb-item" id="si-leads" onclick="showPage('leads')"><i class="fas fa-users"></i> Lead Pipeline</button>
+      <button class="sb-item" id="si-import" onclick="showPage('import')"><i class="fas fa-file-import"></i> CSV Import</button>
+      <div class="sb-section">VERTRIEB</div>
+      <button class="sb-item" id="si-akquise" onclick="showPage('akquise')"><i class="fas fa-script"></i> Akquise-Skripte</button>
+      <button class="sb-item" id="si-coach" onclick="showPage('coach')"><i class="fas fa-brain"></i> KI Coach</button>
+      <div class="sb-section">ABSCHLUSS</div>
+      <button class="sb-item" id="si-zahlung" onclick="showPage('zahlung')"><i class="fab fa-paypal"></i> Zahlung</button>
+      <div class="sb-section">SYSTEM</div>
+      <button class="sb-item" id="si-sql" onclick="showPage('sql')"><i class="fas fa-database"></i> SQL Fix</button>
+    </div>
+    <div class="sb-bottom">
+      <div class="sb-agent">
+        <div style="font-size:9px;color:var(--muted);letter-spacing:.1em;margin-bottom:2px">EINGELOGGT</div>
+        <div class="sb-agent-name">ADMIN · HQ</div>
+      </div>
+      <button onclick="doLogout()" style="margin-top:8px;width:100%;background:none;border:0.5px solid rgba(220,38,38,.3);color:var(--danger);padding:8px;border-radius:8px;cursor:pointer;font-size:12px;font-family:var(--font)">Abmelden</button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main-area">
+
+    <!-- ── COCKPIT ── -->
+    <div id="page-cockpit">
+      <div class="top-bar">
+        <div class="top-bar-title">Cockpit <span class="live-dot" style="margin-left:8px"></span></div>
+      </div>
+      <div class="content">
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-val" id="k-total">–</div><div class="kpi-lbl">Gesamt Leads</div></div>
+          <div class="kpi"><div class="kpi-val" style="color:var(--grn)" id="k-open">–</div><div class="kpi-lbl">Offen</div></div>
+          <div class="kpi"><div class="kpi-val" style="color:var(--accent)" id="k-called">–</div><div class="kpi-lbl">Called</div></div>
+          <div class="kpi"><div class="kpi-val" style="color:#60a5fa" id="k-inter">–</div><div class="kpi-lbl">Interessiert</div></div>
+          <div class="kpi"><div class="kpi-val" style="color:#22d3ee" id="k-termin">–</div><div class="kpi-lbl">Termine</div></div>
+          <div class="kpi"><div class="kpi-val" style="color:var(--grn)" id="k-closed">–</div><div class="kpi-lbl">Closed</div></div>
+        </div>
+        <!-- Pipeline per Agent -->
+        <div class="card">
+          <div style="font-size:13px;font-weight:600;margin-bottom:14px;color:var(--accent)">Pipeline nach Agent</div>
+          <div id="cockpit-agents">Lade…</div>
+        </div>
+        <!-- Recent activity -->
+        <div class="card">
+          <div style="font-size:13px;font-weight:600;margin-bottom:14px;color:var(--accent)">Zuletzt bearbeitet</div>
+          <div id="cockpit-recent">Lade…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LEADS ── -->
+    <div id="page-leads" style="display:none">
+      <div class="top-bar">
+        <div class="top-bar-title">Lead Pipeline</div>
+      </div>
+      <div class="content">
+        <div class="filter-row">
+          <button class="filter-chip active" onclick="filterTable('all',this)">Alle</button>
+          <button class="filter-chip" onclick="filterTable('Open',this)">Offen</button>
+          <button class="filter-chip" onclick="filterTable('Called',this)">Called</button>
+          <button class="filter-chip" onclick="filterTable('Interested',this)">Interessiert</button>
+          <button class="filter-chip" onclick="filterTable('Callback',this)">Callback</button>
+          <button class="filter-chip" onclick="filterTable('Termin',this)">Termin</button>
+          <button class="filter-chip" onclick="filterTable('Closed',this)">Closed</button>
+          <button class="filter-chip" onclick="filterTable('Rejected',this)">Abgelehnt</button>
+          <div style="margin-left:auto;display:flex;gap:6px">
+            <input type="text" id="tbl-search" placeholder="Suche…" style="width:200px;padding:7px 12px;font-size:12px" oninput="renderTable()">
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th><th>Kategorie</th><th>Adresse</th><th>Telefon</th>
+                <th>Rating</th><th>Status</th><th>Agent</th><th>Aktionen</th>
+              </tr>
+            </thead>
+            <tbody id="leads-tbody">
+              <tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted)">Lade Daten…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:8px;font-size:12px;color:var(--muted)" id="tbl-count"></div>
+      </div>
+    </div>
+
+    <!-- ── IMPORT ── -->
+    <div id="page-import" style="display:none">
+      <div class="top-bar">
+        <div class="top-bar-title">CSV Import</div>
+      </div>
+      <div class="content">
+        <div class="card" style="margin-bottom:16px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--accent)"><i class="fas fa-info-circle"></i> Dezimalkomma-Fix aktiv</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6">
+            Zahlen wie <code style="font-family:var(--mono);background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px">"4,4"</code> werden automatisch in 
+            <code style="font-family:var(--mono);background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px">4.4</code> konvertiert (europäisches Dezimalformat → PostgreSQL-kompatibel).<br><br>
+            Erwartete Spalten: <code style="font-family:var(--mono);font-size:11px">name, address, phone, website, category, rating, opening_status, maps_url</code>
+          </div>
+        </div>
+
+        <!-- Drop zone -->
+        <div class="drop-zone" id="drop-zone" onclick="S('csv-input').click()"
+             ondragover="event.preventDefault();this.classList.add('drag')"
+             ondragleave="this.classList.remove('drag')"
+             ondrop="handleDrop(event)">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <div style="font-size:15px;font-weight:600;margin-bottom:4px">CSV-Datei hier ablegen</div>
+          <div style="font-size:13px;color:var(--muted)">oder klicken zum Auswählen</div>
+        </div>
+        <input type="file" id="csv-input" accept=".csv" style="display:none" onchange="handleCSVFile(this.files[0])">
+
+        <!-- Preview -->
+        <div id="csv-preview" style="display:none;margin-top:16px">
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <div style="font-size:13px;font-weight:600">Vorschau <span style="color:var(--muted)" id="prev-count"></span></div>
+              <div style="display:flex;gap:8px">
+                <button class="btn-sec" onclick="cancelImport()"><i class="fas fa-times"></i> Abbrechen</button>
+                <button class="btn-grn" onclick="doImport()"><i class="fas fa-upload"></i> In Supabase importieren</button>
+              </div>
+            </div>
+            <div class="tbl-wrap" style="max-height:340px;overflow:auto">
+              <table id="prev-table">
+                <thead id="prev-thead"></thead>
+                <tbody id="prev-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="import-log" style="margin-top:12px;font-size:13px;font-family:var(--mono);line-height:1.8;color:var(--muted)"></div>
+      </div>
+    </div>
+
+    <!-- ── AKQUISE ── -->
+    <div id="page-akquise" style="display:none">
+      <div class="top-bar">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:20px">
+          <div class="top-bar-title" style="padding-bottom:0">Akquise-Skripte</div>
+          <div style="display:flex;gap:6px">
+            <button id="ak-gastro" class="btn-sec" onclick="setAkq('gastronomie')" style="font-size:11px">🍕 Gastronomie</button>
+            <button id="ak-hw" class="btn-sec" onclick="setAkq('handwerk')" style="font-size:11px">🔧 Handwerk</button>
+            <button id="ak-dooh" class="btn-sec" onclick="setAkq('dooh')" style="font-size:11px">📺 DOOH</button>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start">
+          <div>
+            <div class="card" style="margin-bottom:12px">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px;font-weight:600;letter-spacing:.08em">KONTEXT</div>
+              <div id="ak-ctx" style="font-size:13px;line-height:1.65;color:var(--muted)"></div>
+            </div>
+            <div style="margin-bottom:10px">
+              <label style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.08em;display:block;margin-bottom:5px">FIRMA</label>
+              <input id="ak-firma" placeholder="Firmenname (optional)" style="max-width:360px" oninput="renderAkq()">
+            </div>
+            <div class="prog-bar"><div class="prog-fill" id="ak-prog"></div></div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:12px" id="ak-prog-lbl">Schritt 1 / 4</div>
+            <div id="ak-steps"></div>
+          </div>
+          <div>
+            <div class="card" style="position:sticky;top:80px">
+              <div style="font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--muted);margin-bottom:10px">FAKTEN & ZAHLEN</div>
+              <div id="ak-facts" style="display:flex;flex-direction:column;gap:6px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── KI COACH ── -->
+    <div id="page-coach" style="display:none">
+      <div class="top-bar">
+        <div class="top-bar-title">KI Echtzeit-Coach</div>
+      </div>
+      <div class="content" style="max-width:720px">
+        <div class="card" style="margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div>
+              <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px">BRANCHE</label>
+              <select id="coach-type" style="width:180px;font-size:13px">
+                <option value="gastronomie">🍕 Gastronomie</option>
+                <option value="handwerk">🔧 Handwerk</option>
+                <option value="dooh">📺 DOOH / Investor</option>
+              </select>
+            </div>
+            <div id="coach-controls">
+              <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px">&nbsp;</label>
+              <button class="btn-grn" onclick="startCoach()"><i class="fas fa-phone"></i> Call starten</button>
+            </div>
+            <div id="coach-timer" style="display:none;align-items:center;gap:10px">
+              <div style="font-size:24px;font-weight:700;font-family:var(--mono);color:var(--accent)" id="coach-time">00:00</div>
+              <button class="btn-sec" onclick="endCoach()" style="color:var(--danger);border-color:rgba(220,38,38,.3)"><i class="fas fa-phone-slash"></i> Beenden</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:12px">
+          <div class="chat-wrap" id="coach-chat"></div>
+          <div style="display:flex;gap:8px">
+            <input id="coach-inp" placeholder="Was sagt der Kunde?" disabled style="flex:1" onkeydown="if(event.key==='Enter')sendCoach()">
+            <button id="coach-send" class="btn-gold" onclick="sendCoach()" disabled style="width:auto;padding:0 16px;white-space:nowrap">Senden</button>
+          </div>
+        </div>
+
+        <!-- Quick objections -->
+        <div id="coach-objs" class="card" style="display:none">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">SCHNELL-EINWÄNDE</div>
+          <div id="obj-btns" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ZAHLUNG ── -->
+    <div id="page-zahlung" style="display:none">
+      <div class="top-bar">
+        <div class="top-bar-title">Zahlung & Rechnung</div>
+      </div>
+      <div class="content" style="max-width:720px">
+        <div class="pkg-grid">
+          <div class="pkg" id="pkg-starter" onclick="selectPkg('starter')">
+            <div style="font-size:20px;margin-bottom:8px">🚀</div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:4px">Digital Starter</div>
+            <div class="pkg-price">€133</div>
+            <div style="font-size:11px;color:var(--muted)">/Monat</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5">7-Tage Website Sprint + SEO + HTML</div>
+          </div>
+          <div class="pkg" id="pkg-premium" onclick="selectPkg('premium')">
+            <div style="font-size:20px;margin-bottom:8px">💎</div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:4px">Digital Premium</div>
+            <div class="pkg-price">€299</div>
+            <div style="font-size:11px;color:var(--muted)">/Monat</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5">Website + GustoFix + KI-Automatisierung</div>
+          </div>
+          <div class="pkg" id="pkg-dooh" onclick="selectPkg('dooh')">
+            <div style="font-size:20px;margin-bottom:8px">📺</div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:4px">Smart-Ad-Pack</div>
+            <div class="pkg-price">€950</div>
+            <div style="font-size:11px;color:var(--muted)">einmalig</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5">1× DOOH-Einheit + Geofencing + Dashboard</div>
+          </div>
+          <div class="pkg" id="pkg-fleet" onclick="selectPkg('fleet')">
+            <div style="font-size:20px;margin-bottom:8px">🏎️</div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:4px">Fleet Vienna</div>
+            <div class="pkg-price">€4.500</div>
+            <div style="font-size:11px;color:var(--muted)">/Monat</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5">5 Rider + DOOH-Management + KI-Targeting</div>
+          </div>
+        </div>
+
+        <div id="z-panel" class="card" style="display:none;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div>
+              <div style="font-size:17px;font-weight:700" id="z-pkg-name">–</div>
+              <div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--accent)" id="z-pkg-price">–</div>
+              <div style="font-size:12px;color:var(--muted)" id="z-pkg-desc">–</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+            <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">KUNDENNAME</label><input id="z-name" placeholder="Max Mustermann" oninput="updateInvoice()"></div>
+            <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">E-MAIL</label><input id="z-email" type="email" placeholder="email@firma.at" oninput="updateInvoice()"></div>
+          </div>
+          <div style="margin-bottom:12px"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">NOTIZ</label><input id="z-note" placeholder="z.B. Termin am 27.05." oninput="updateInvoice()"></div>
+          <div style="background:var(--surface);border-radius:8px;padding:14px;margin-bottom:12px">
+            <pre id="z-invoice" style="font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.9;white-space:pre-wrap"></pre>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-sec" onclick="copyInvoice()"><i class="fas fa-copy"></i> Rechnung kopieren</button>
+            <button class="btn-grn" onclick="genPaypal()"><i class="fab fa-paypal"></i> PayPal-Link erstellen</button>
+          </div>
+          <div id="z-paypal-box" style="display:none;margin-top:12px">
+            <div style="background:var(--surface);border-radius:8px;padding:12px;font-family:var(--mono);font-size:12px;word-break:break-all;color:var(--muted);margin-bottom:8px" id="z-paypal-link"></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn-sec" onclick="copyPaypal()"><i class="fas fa-copy"></i> Kopieren</button>
+              <button class="btn-gold" onclick="openPaypal()" style="width:auto;padding:10px 16px;font-size:13px"><i class="fas fa-external-link-alt"></i> PayPal öffnen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SQL FIX ── -->
+    <div id="page-sql" style="display:none">
+      <div class="top-bar">
+        <div class="top-bar-title">SQL Fix — Businesses Rating</div>
+      </div>
+      <div class="content" style="max-width:720px">
+        <div class="card">
+          <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:8px"><i class="fas fa-exclamation-triangle"></i> Problem: ERROR 22P02 — invalid input syntax for numeric: "4,4"</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:16px">
+            Führe diesen SQL-Code im Supabase SQL Editor deines Projekts (<code style="font-family:var(--mono);font-size:11px">jvmpojigydbkrzlabuor</code>) aus, um die Tabelle zu reparieren.
+          </div>
+          <div style="background:var(--surface);border-radius:10px;padding:16px;margin-bottom:12px">
+            <pre id="sql-code" style="font-family:var(--mono);font-size:12px;color:#93c5fd;line-height:1.8;white-space:pre-wrap">-- SCHRITT 1: Spalte temporär auf TEXT ändern (damit "4,4" importiert werden kann)
+ALTER TABLE businesses ALTER COLUMN rating TYPE TEXT;
+
+-- SCHRITT 2: Jetzt deine CSV normal im Table Editor importieren
+
+-- SCHRITT 3: Nach dem Import — Komma durch Punkt ersetzen und zurückkonvertieren
+UPDATE businesses
+  SET rating = REPLACE(rating, ',', '.')
+  WHERE rating LIKE '%,%';
+
+ALTER TABLE businesses
+  ALTER COLUMN rating TYPE NUMERIC(3,1) USING rating::NUMERIC;
+
+-- SCHRITT 4: RLS aktivieren (falls noch nicht aktiv)
+ALTER TABLE businesses ENABLE ROW LEVEL SECURITY;
+CREATE POLICY IF NOT EXISTS "public_rw" ON businesses FOR ALL USING (true) WITH CHECK (true);
+
+SELECT 'businesses-Tabelle bereit: ' || count(*) || ' Datensätze' FROM businesses;</pre>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-sec" onclick="copySQL()"><i class="fas fa-copy"></i> SQL kopieren</button>
+            <a href="https://supabase.com/dashboard/project/jvmpojigydbkrzlabuor/sql/new" target="_blank" class="btn-grn" style="text-decoration:none"><i class="fas fa-external-link-alt"></i> Supabase SQL Editor öffnen</a>
+          </div>
+        </div>
+        <div class="card">
+          <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:8px">Korrekte businesses-Tabellenstruktur</div>
+          <pre style="font-family:var(--mono);font-size:11px;color:#93c5fd;line-height:1.8">CREATE TABLE IF NOT EXISTS businesses (
+  id              BIGSERIAL PRIMARY KEY,
+  name            TEXT,
+  address         TEXT,
+  phone           TEXT,
+  website         TEXT,
+  category        TEXT,
+  rating          NUMERIC(3,1),
+  opening_status  TEXT,
+  maps_url        TEXT,
+  lead_status     TEXT DEFAULT 'Open',
+  assigned_agent  TEXT DEFAULT 'UNASSIGNED',
+  notes           TEXT,
+  last_called_at  TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ DEFAULT NOW()
+);</pre>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-area -->
+</div><!-- /app-wrap -->
+
+<div class="toast-global" id="gtost"></div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const SB_URL = 'https://lzqerupigfyorsdbmjtc.supabase.co';
+const SB_KEY = 'sb_publishable_hXNSoqqK9VYXqYKEI8ltjg_qNnz5Mnw';
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ADMIN_ID = 'admin23';
+const ADMIN_PW = 'ayseselinadaldaban';
+
+const sb = supabase.createClient(SB_URL, SB_KEY);
+const S = id => document.getElementById(id);
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+function doLogin(){
+  const id=S('l-id').value.trim();
+  const pw=S('l-pw').value.trim();
+  if(id===ADMIN_ID&&pw===ADMIN_PW){
+    sessionStorage.setItem('sn_admin','1');
+    S('login-wrap').style.display='none';
+    S('app-wrap').style.display='block';
+    bootAdmin();
+  } else {
+    S('l-err').style.display='block';
+    setTimeout(()=>S('l-err').style.display='none',3000);
+  }
+}
+function doLogout(){
+  sessionStorage.removeItem('sn_admin');
+  location.reload();
+}
+function checkAdminAuth(){
+  if(sessionStorage.getItem('sn_admin')==='1'){
+    S('login-wrap').style.display='none';
+    S('app-wrap').style.display='block';
+    bootAdmin();
+  }
+}
+
+async function bootAdmin(){
+  await loadAllLeads();
+  renderCockpit();
+  renderTable();
+  setAkq('gastronomie');
+}
+
+// ─── SUPABASE DATA ────────────────────────────────────────────────────────────
+let allLeads=[];
+
+async function loadAllLeads(){
+  const {data,error}=await sb.from('businesses').select('*').order('id',{ascending:true});
+  if(error){gToast('DB Fehler: '+error.message,'err');return;}
+  allLeads=(data||[]).map(r=>({...r,rating:r.rating!=null?parseFloat(String(r.rating).replace(',','.')):null}));
+}
+
+// ─── COCKPIT ─────────────────────────────────────────────────────────────────
+function renderCockpit(){
+  const total=allLeads.length;
+  const cnt=st=>allLeads.filter(l=>(l.lead_status||'Open')===st).length;
+  S('k-total').textContent=total;
+  S('k-open').textContent=cnt('Open');
+  S('k-called').textContent=cnt('Called');
+  S('k-inter').textContent=cnt('Interested');
+  S('k-termin').textContent=cnt('Termin');
+  S('k-closed').textContent=cnt('Closed');
+
+  // By agent
+  const agents={};
+  allLeads.forEach(l=>{
+    const a=l.assigned_agent||'UNASSIGNED';
+    if(!agents[a])agents[a]={open:0,called:0,closed:0,total:0};
+    agents[a].total++;
+    if(l.lead_status==='Open'||!l.lead_status)agents[a].open++;
+    else if(l.lead_status==='Called')agents[a].called++;
+    else if(l.lead_status==='Closed')agents[a].closed++;
+  });
+  const agHtml=Object.entries(agents).map(([name,s])=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--border)">
+      <div style="font-weight:600;font-family:var(--mono);font-size:13px">${sanitize(name)}</div>
+      <div style="display:flex;gap:12px;font-size:12px">
+        <span style="color:var(--muted)">${s.total} total</span>
+        <span style="color:var(--grn)">${s.closed} closed</span>
+        <span style="color:var(--accent)">${s.called} called</span>
+        <span style="color:#6b7280">${s.open} offen</span>
+      </div>
+    </div>`).join('');
+  S('cockpit-agents').innerHTML=agHtml||'<div style="color:var(--muted);font-size:13px">Keine Daten</div>';
+
+  // Recent
+  const recent=[...allLeads].filter(l=>l.last_called_at).sort((a,b)=>b.last_called_at.localeCompare(a.last_called_at)).slice(0,6);
+  S('cockpit-recent').innerHTML=recent.map(l=>{
+    const d=new Date(l.last_called_at).toLocaleString('de-AT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const st=STATUS_MAP[l.lead_status||'Open']||{cls:'b-open',label:'–'};
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--border)">
+      <div>
+        <div style="font-size:13px;font-weight:600">${sanitize(l.name||'–')}</div>
+        <div style="font-size:11px;color:var(--muted)">${sanitize(l.assigned_agent||'–')} · ${d}</div>
+      </div>
+      <span class="badge ${st.cls}">${st.label}</span>
+    </div>`;
+  }).join('')||'<div style="color:var(--muted);font-size:13px">Noch keine Aktivität</div>';
+}
+
+// ─── LEADS TABLE ──────────────────────────────────────────────────────────────
+const STATUS_MAP={
+  'Open':{label:'OFFEN',cls:'b-open'},
+  'Called':{label:'CALLED',cls:'b-called'},
+  'Interested':{label:'INTERESSIERT',cls:'b-interested'},
+  'Callback':{label:'CALLBACK',cls:'b-callback'},
+  'Termin':{label:'TERMIN ✓',cls:'b-termin'},
+  'Closed':{label:'CLOSED',cls:'b-closed'},
+  'Rejected':{label:'ABGELEHNT',cls:'b-rejected'}
+};
+
+let tblFilter='all';
+function filterTable(f,btn){
+  tblFilter=f;
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function renderTable(){
+  const q=(S('tbl-search')?.value||'').toLowerCase();
+  let rows=allLeads;
+  if(tblFilter!=='all') rows=rows.filter(l=>(l.lead_status||'Open')===tblFilter);
+  if(q) rows=rows.filter(l=>(l.name||'').toLowerCase().includes(q)||(l.address||'').toLowerCase().includes(q)||(l.phone||'').includes(q));
+  S('tbl-count').textContent=rows.length+' Einträge';
+  const agents=['DANYVITO','AGENT007','SELINOVA','UNASSIGNED'];
+  const agOpts=agents.map(a=>`<option value="${a}">${a}</option>`).join('');
+  const stOpts=Object.keys(STATUS_MAP).map(k=>`<option value="${k}">${STATUS_MAP[k].label}</option>`).join('');
+  S('leads-tbody').innerHTML=rows.slice(0,100).map(l=>{
+    const st=STATUS_MAP[l.lead_status||'Open']||{label:'–',cls:'b-open'};
+    const rat=l.rating!=null?'★ '+parseFloat(l.rating).toFixed(1):'–';
+    return `<tr>
+      <td style="font-weight:600;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sanitize(l.name||'–')}</td>
+      <td style="font-size:12px;color:var(--muted)">${sanitize(l.category||'–')}</td>
+      <td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)">${sanitize(l.address||'–')}</td>
+      <td style="font-family:var(--mono);font-size:12px">${sanitize(l.phone||'–')}</td>
+      <td style="font-size:12px;color:#f59e0b">${rat}</td>
+      <td>
+        <select onchange="updateCell(${l.id},'lead_status',this.value)" style="font-size:11px;padding:4px 8px;width:130px">
+          ${Object.keys(STATUS_MAP).map(k=>`<option value="${k}"${(l.lead_status||'Open')===k?' selected':''}>${STATUS_MAP[k].label}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <select onchange="updateCell(${l.id},'assigned_agent',this.value)" style="font-size:11px;padding:4px 8px;width:120px">
+          ${agents.map(a=>`<option value="${a}"${(l.assigned_agent||'UNASSIGNED')===a?' selected':''}>${a}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        ${l.phone?`<button class="btn-sec" onclick="window.open('tel:${sanitize(l.phone)}','_self')" style="padding:4px 8px;font-size:11px"><i class="fas fa-phone"></i></button>`:''}
+        ${l.website?`<a href="${sanitize(l.website)}" target="_blank" class="btn-sec" style="padding:4px 8px;font-size:11px;text-decoration:none"><i class="fas fa-globe"></i></a>`:''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function updateCell(id,field,val){
+  const update={[field]:val};
+  if(field==='lead_status') update.last_called_at=new Date().toISOString();
+  const {error}=await sb.from('businesses').update(update).eq('id',id);
+  if(error){gToast('Fehler: '+error.message,'err');return;}
+  const l=allLeads.find(x=>x.id===id);
+  if(l){l[field]=val;if(field==='lead_status')l.last_called_at=update.last_called_at;}
+  gToast('Gespeichert ✓');
+}
+
+// ─── CSV IMPORT ───────────────────────────────────────────────────────────────
+let csvRows=[], csvHeaders=[];
+
+function safeNum(v){
+  if(v===''||v===null||v===undefined) return null;
+  const n=parseFloat(String(v).replace(',','.'));
+  return isNaN(n)?null:n;
+}
+
+function handleDrop(e){
+  e.preventDefault();
+  S('drop-zone').classList.remove('drag');
+  const file=e.dataTransfer.files[0];
+  if(file) handleCSVFile(file);
+}
+
+function handleCSVFile(file){
+  if(!file)return;
+  S('import-log').innerHTML='';
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const text=e.target.result;
+    parseCSV(text);
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+function parseCSVLine(line){
+  const r=[];let cur='',inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){inQ=!inQ;}
+    else if(c===','&&!inQ){r.push(cur.trim());cur='';}
+    else cur+=c;
+  }
+  r.push(cur.trim());
+  return r;
+}
+
+function parseCSV(text){
+  const lines=text.trim().split(/\r?\n/);
+  if(lines.length<2){S('import-log').textContent='CSV ist leer.';return;}
+  csvHeaders=parseCSVLine(lines[0]).map(h=>h.toLowerCase().replace(/"/g,''));
+  csvRows=[];
+  for(let i=1;i<lines.length;i++){
+    const vals=parseCSVLine(lines[i]);
+    if(vals.length<2)continue;
+    const row={};
+    csvHeaders.forEach((h,j)=>row[h]=(vals[j]||'').replace(/"/g,'').trim());
+    csvRows.push(row);
+  }
+  showPreview();
+}
+
+function mapRow(row){
+  const g=(...keys)=>{for(const k of keys){const v=row[k];if(v!==undefined&&v!=='')return v;}return null;};
+  return {
+    name:          g('name','firma','unternehmen','business name','title'),
+    address:       g('address','adresse','standort','location'),
+    phone:         g('phone','telefon','tel','phone number','handynummer'),
+    website:       g('website','url','webseite','homepage'),
+    category:      g('category','kategorie','branche','type'),
+    rating:        safeNum(g('rating','bewertung','google rating','stars')),
+    opening_status:g('opening_status','status','geöffnet','hours'),
+    maps_url:      g('maps_url','maps url','google maps','link'),
+    assigned_agent:'UNASSIGNED',
+    lead_status:   'Open'
+  };
+}
+
+function showPreview(){
+  const mapped=csvRows.slice(0,20).map(mapRow);
+  S('prev-count').textContent='('+csvRows.length+' Zeilen gesamt, erste 20 gezeigt)';
+  const cols=['name','address','phone','category','rating','opening_status'];
+  S('prev-thead').innerHTML='<tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+  S('prev-tbody').innerHTML=mapped.map(r=>`<tr>${cols.map(c=>`<td style="font-size:12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sanitize(String(r[c]??'–'))}</td>`).join('')}</tr>`).join('');
+  S('csv-preview').style.display='block';
+  S('drop-zone').style.display='none';
+}
+
+async function doImport(){
+  const rows=csvRows.map(mapRow).filter(r=>r.name);
+  S('import-log').innerHTML='<span style="color:var(--accent)">Importiere '+rows.length+' Einträge…</span>';
+  
+  let done=0,errs=0;
+  const chunk=50;
+  for(let i=0;i<rows.length;i+=chunk){
+    const batch=rows.slice(i,i+chunk);
+    const {error}=await sb.from('businesses').upsert(batch,{onConflict:'name'});
+    if(error){errs+=batch.length;S('import-log').innerHTML+=`<br><span style="color:var(--danger)">Fehler Batch ${i}: ${error.message}</span>`;}
+    else done+=batch.length;
+  }
+  
+  S('import-log').innerHTML+=`<br><span style="color:var(--grn)">✓ ${done} importiert, ${errs} Fehler.</span>`;
+  cancelImport();
+  await loadAllLeads();
+  renderTable();
+  renderCockpit();
+  gToast(done+' Leads importiert');
+}
+
+function cancelImport(){
+  S('csv-preview').style.display='none';
+  S('drop-zone').style.display='block';
+  S('csv-input').value='';
+  csvRows=[];csvHeaders=[];
+}
+
+// ─── AKQUISE ─────────────────────────────────────────────────────────────────
+const SCRIPTS={
+  gastronomie:{
+    ctx:'Branche: Gastronomie Wien — 7-Tage Website Sprint, €133/Mo, eigener Bestellshop vs. 30% Lieferando-Provision',
+    steps:[
+      {t:'Aufhänger',i:'fa-bullseye',text:'„Guten Tag, ich bin von SELINOVATECH Wien. Wir bauen für Gastronomen in 7 Tagen ihre eigene Bestellwebsite — ohne Lieferando-Provision. Haben Sie kurz 2 Minuten?"'},
+      {t:'Problem',i:'fa-fire',text:'„Lieferando nimmt bis zu 30% auf jede Bestellung. Bei 100 Bestellungen à €30 verlieren Sie €900 pro Monat direkt an Lieferando — monatlich. Stellen Sie sich vor, das bleibt bei Ihnen."'},
+      {t:'Lösung',i:'fa-rocket',text:'„Wir bauen Ihnen in 7 Tagen eine fertige Website mit eigenem Bestellshop, Menükarte und QR-Code fürs Lokal. €133 pro Monat — ab dem ersten Monat verdienen Sie mehr als Sie zahlen."'},
+      {t:'Close',i:'fa-handshake',text:'„Soll ich Ihnen kurz zeigen, wie so eine Seite für Ihr Lokal aussieht? Das dauert 10 Minuten — und Sie sehen sofort, was möglich ist. Wann passt Ihnen das diese Woche?"'}
+    ],
+    facts:['Lieferando Provision: 20-30% — SELINOVATECH: €133/Mo fixed','Break-Even bei nur 5-7 Bestellungen pro Monat','7-Tage Lieferzeit — keine Vorauszahlung nötig','Referenz: +23 Gastro-Kunden in Wien seit Q1 2026']
+  },
+  handwerk:{
+    ctx:'Branche: Handwerksbetriebe Wien — automatisiertes Lead-Filtering, nur Premium-Kunden, 5h/Woche gespart',
+    steps:[
+      {t:'Aufhänger',i:'fa-tools',text:'„Guten Tag, SELINOVATECH Wien. Wir bauen für Handwerksbetriebe ein automatisiertes Anfrage-System, das nur lukrative Großaufträge zu Ihnen durchlässt. 30 Sekunden?"'},
+      {t:'Problem',i:'fa-times-circle',text:'„Jeder Handwerker kennt das: 20 Anfragen rein, 18 davon zu klein, zu weit, zu billig. Sie verbringen 5 Stunden die Woche mit Anfragen filtern — Zeit, die Sie beim Kunden sein könnten."'},
+      {t:'Lösung',i:'fa-filter',text:'„Unser System filtert automatisch: Projektgröße, Ort, Budget. Nur Premium-Anfragen kommen bei Ihnen an. Direkt ins CRM, direkt mit Rückruf-Button. Sie sehen nur, was sich lohnt."'},
+      {t:'Close',i:'fa-calendar-check',text:'„Ich zeige Ihnen das gerne in 15 Minuten — keine Verpflichtung. Haben Sie Donnerstag oder Freitag kurz Zeit für einen Videocall?"'}
+    ],
+    facts:['Durchschnittlich 5h/Woche durch Filterung gespart','Ø 40% mehr Großaufträge durch qualifizierte Leads','Setup in 7 Tagen, kein IT-Wissen nötig','€133/Mo — amortisiert sich beim ersten Großauftrag']
+  },
+  dooh:{
+    ctx:'Branche: DOOH/Investor — TKP €85, CAPEX €950, Revenue €4.500/Mo, Amortisation < 1 Monat',
+    steps:[
+      {t:'Vision',i:'fa-eye',text:'„Stellen Sie sich vor: Ihr Werbepanel erkennt 50 japanische Touristen am Stephansplatz und schaltet automatisch auf Japanisch um — in dem Moment, in dem sie vorbeigehen. Das ist kein Marketing mehr. Das ist Chirurgie."'},
+      {t:'Technologie',i:'fa-microchip',text:'„Raspberry Pi 4, 2500-Nits-Panel, LTE-Uplink, Geofencing und KI-Sprachadaption. Wir wissen durch Tourismus-Partnerdaten, welche Gruppen wo sind — bevor sie ankommen."'},
+      {t:'Business Case',i:'fa-chart-line',text:'„CAPEX: €950 einmalig. Revenue: €4.500 pro Panel pro Monat. Amortisation in unter einem Monat. 5 Einheiten = €22.500 monatlicher Cashflow. Gewista TKP: €6-12. Unser TKP: €85 — für Qualität statt Masse."'},
+      {t:'Next Step',i:'fa-handshake',text:'„Ich zeige Ihnen das Dashboard und die Hardware-Specs in einem 15-Minuten-Demo. Die ersten Zeitslots in der Innenstadt sind bereits vergeben. Wann haben Sie diese Woche ein Fenster?"'}
+    ],
+    facts:['CAPEX €950 — ROI in <1 Monat','Revenue €4.500/Panel/Monat — 5 Rider = €22.500/Mo','Gewista TKP €6-12 vs. SELINOVATECH €85','IP64, Sonnenlicht-lesbar (2500 Nits)']
+  }
+};
+
+let akqType='gastronomie', akqStep=0;
+function setAkq(t){
+  akqType=t;akqStep=0;
+  ['gastro','hw','dooh'].forEach(k=>S('ak-'+k)?.classList.remove('active'));
+  renderAkq();
+}
+function renderAkq(){
+  const sc=SCRIPTS[akqType];
+  if(!sc)return;
+  S('ak-ctx').textContent=sc.ctx;
+  const firma=S('ak-firma')?.value||'';
+  const steps=S('ak-steps');
+  steps.innerHTML='';
+  sc.steps.forEach((step,i)=>{
+    const isAct=i===akqStep,isDone=i<akqStep;
+    const card=document.createElement('div');
+    card.className='step-card'+(isAct?' active':'');
+    card.onclick=()=>{akqStep=i;renderAkq();};
+    const txt=firma?step.text.replace('Ihnen','Ihnen ('+firma+')'):step.text;
+    card.innerHTML=`<div class="step-hd">
+      <div class="step-num">${isDone?'<i class="fas fa-check" style="font-size:12px"></i>':(i+1)}</div>
+      <div style="font-size:12px;font-weight:600;letter-spacing:.06em;color:${isAct?'var(--accent)':'var(--muted)'}">${String(i+1).padStart(2,'0')} · ${step.t}</div>
+      <span style="margin-left:auto;color:var(--muted)">${isAct?'▾':'›'}</span>
+    </div>
+    ${isAct?`<div class="step-body">
+      <div class="quote">${sanitize(txt)}</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-sec" onclick="event.stopPropagation();copyText(\`${txt.replace(/`/g,'\\`')}\`)"><i class="fas fa-copy"></i> Kopieren</button>
+        ${i<sc.steps.length-1?`<button class="btn-grn" onclick="event.stopPropagation();akqStep++;renderAkq()">Nächster Schritt <i class="fas fa-arrow-right"></i></button>`:''}
+      </div>
+    </div>`:''}`;
+    steps.appendChild(card);
+  });
+  const pct=((akqStep+1)/sc.steps.length*100).toFixed(0);
+  S('ak-prog').style.width=pct+'%';
+  S('ak-prog-lbl').textContent='Schritt '+(akqStep+1)+' / '+sc.steps.length;
+  // Facts
+  S('ak-facts').innerHTML=sc.facts.map(f=>`<div style="background:var(--surface);border:0.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--muted);line-height:1.5">${sanitize(f)}</div>`).join('');
+}
+
+// ─── KI COACH ─────────────────────────────────────────────────────────────────
+const COACH_SYS={
+  gastronomie:`Du coachst einen SELINOVATECH-Vertriebler live beim Telefonat mit einem GASTRONOMEN in Wien. Produkt: HTML-Websites, 7-Tage-Sprint, €133/Mo, eigener Bestellshop statt Lieferando 30%. Antworte Deutsch, max 3-4 Sätze, sofort verwendbare Formulierungen. Format: direkt, kein Blabla.`,
+  handwerk:`Du coachst einen SELINOVATECH-Vertriebler live beim Telefonat mit einem HANDWERKSBETRIEB. Produkt: Anfrage-Filtersystem, nur Premium-Kunden, 5h/Woche gespart. Antworte Deutsch, max 3-4 Sätze, sofort verwendbar.`,
+  dooh:`Du coachst einen SELINOVATECH-Vertriebler live beim DOOH-Pitch. Produkt: Smart-Ad-Packs, CAPEX €950, Revenue €4.500/Mo, TKP €85. Antworte Deutsch, max 3-4 Sätze, präzise.`
+};
+const OBJS={
+  gastronomie:['Zu teuer','Haben schon Lieferando','Keine Zeit','Kein Interesse','Haben schon Website'],
+  handwerk:['Mein Neffe macht das','Haben genug Aufträge','Kein Budget','Kein Internet nötig'],
+  dooh:['Was ist DOOH?','Zu teuer','Wir haben Gewista','Kein Budget','Kein Platz']
+};
+
+let coachActive=false,coachTimer=0,coachInt=null;
+function startCoach(){
+  coachActive=true;coachTimer=0;
+  S('coach-controls').style.display='none';
+  S('coach-timer').style.display='flex';
+  S('coach-inp').disabled=false;
+  S('coach-send').disabled=false;
+  S('coach-type').disabled=true;
+  S('coach-objs').style.display='block';
+  renderObjs();
+  coachInt=setInterval(()=>{
+    coachTimer++;
+    const m=String(Math.floor(coachTimer/60)).padStart(2,'0');
+    const s=String(coachTimer%60).padStart(2,'0');
+    S('coach-time').textContent=m+':'+s;
+  },1000);
+  addMsg('ai','Call gestartet — '+S('coach-type').options[S('coach-type').selectedIndex].text+'\n\nTippe, was der Kunde sagt, und ich liefere sofort die optimale Antwort.');
+}
+function endCoach(){
+  coachActive=false;clearInterval(coachInt);
+  S('coach-controls').style.display='block';
+  S('coach-timer').style.display='none';
+  S('coach-inp').disabled=true;S('coach-send').disabled=true;
+  S('coach-type').disabled=false;S('coach-objs').style.display='none';
+  addMsg('ai','Call beendet nach '+S('coach-time').textContent+'.\n\nNext Steps: Follow-up innerhalb 2h, Demo-Termin bestätigen, Zahlung vorbereiten.');
+}
+function renderObjs(){
+  const t=S('coach-type').value;
+  S('obj-btns').innerHTML=(OBJS[t]||[]).map(o=>`<button class="btn-sec" style="font-size:11px;padding:5px 10px" onclick="S('coach-inp').value='${o}';S('coach-inp').focus()">${o}</button>`).join('');
+}
+function addMsg(role,text){
+  const chat=S('coach-chat');
+  const wrap=document.createElement('div');
+  wrap.style.cssText='display:flex;flex-direction:column;gap:2px';
+  const lbl=document.createElement('div');
+  lbl.className='msg-lbl';
+  lbl.style.textAlign=role==='user'?'right':'left';
+  lbl.style.color=role==='ai'?'#378ADD':'var(--accent)';
+  lbl.textContent=role==='ai'?'COACH KI':'KUNDE';
+  const msg=document.createElement('div');
+  msg.className=role==='ai'?'msg-ai':'msg-user';
+  msg.textContent=text;
+  if(role==='user')msg.style.marginLeft='auto';
+  wrap.appendChild(lbl);wrap.appendChild(msg);
+  chat.appendChild(wrap);
+  chat.scrollTop=chat.scrollHeight;
+}
+async function sendCoach(){
+  if(!coachActive)return;
+  const inp=S('coach-inp');const txt=inp.value.trim();if(!txt)return;
+  inp.value='';addMsg('user',txt);
+  S('coach-send').disabled=true;
+  const typingWrap=document.createElement('div');
+  typingWrap.innerHTML=`<div class="msg-lbl" style="color:#378ADD">COACH KI</div><div class="msg-ai"><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+  S('coach-chat').appendChild(typingWrap);S('coach-chat').scrollTop=S('coach-chat').scrollHeight;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:COACH_SYS[S('coach-type').value],
+        messages:[{role:'user',content:'Kunde sagt: "'+txt+'"\n\nWas antworte ich?'}]})
+    });
+    const d=await res.json();
+    typingWrap.remove();
+    addMsg('ai',d.content?.[0]?.text||'Halte die Linie — nutze das Skript.');
+  }catch(e){
+    typingWrap.remove();addMsg('ai','Verbindungsproblem. Nutze das Akquise-Skript als Backup.');
+  }
+  S('coach-send').disabled=false;inp.focus();
+}
+
+// ─── ZAHLUNG ─────────────────────────────────────────────────────────────────
+const PKGS={
+  starter:{name:'Digital Starter',price:'133',unit:'€/Monat',desc:'7-Tage Sprint + SEO + HTML'},
+  premium:{name:'Digital Premium',price:'299',unit:'€/Monat',desc:'Website + GustoFix + KI-Content'},
+  dooh:{name:'Smart-Ad-Pack',price:'950',unit:'€ einmalig',desc:'1× DOOH-Einheit + Setup + Dashboard'},
+  fleet:{name:'Fleet Vienna',price:'4.500',unit:'€/Monat',desc:'5 Rider + DOOH + KI-Targeting'}
+};
+let selPkg=null;
+function selectPkg(id){
+  selPkg=id;
+  Object.keys(PKGS).forEach(k=>S('pkg-'+k).classList.toggle('sel',k===id));
+  const p=PKGS[id];
+  S('z-pkg-name').textContent=p.name;
+  S('z-pkg-price').textContent='€'+p.price;
+  S('z-pkg-desc').textContent=p.unit+' · '+p.desc;
+  S('z-panel').style.display='block';
+  S('z-paypal-box').style.display='none';
+  updateInvoice();
+}
+function updateInvoice(){
+  if(!selPkg)return;
+  const p=PKGS[selPkg];
+  const n=S('z-name').value||'—',e=S('z-email').value||'—',note=S('z-note').value;
+  const d=new Date().toLocaleDateString('de-AT');
+  S('z-invoice').textContent=`SELINOVATECH – RECHNUNG\n${'─'.repeat(38)}\nKunde:       ${n}\nE-Mail:      ${e}\nPaket:       ${p.name}\nBetrag:      €${p.price} (${p.unit})\nLeistung:    ${p.desc}${note?'\nNotiz:       '+note:''}\n${'─'.repeat(38)}\nSELINOVATECH | Wien | ${d}\nThe future is loaded.`;
+}
+function copyInvoice(){copyText(S('z-invoice').textContent);}
+function genPaypal(){
+  if(!selPkg)return;
+  const p=PKGS[selPkg],n=S('z-name').value,note=S('z-note').value;
+  const parts=['SELINOVATECH',p.name];if(n)parts.push(n);if(note)parts.push(note);
+  const link='https://www.paypal.com/paypalme/selinovatech/'+p.price.replace('.','')+'EUR?note='+encodeURIComponent(parts.join(' – '));
+  S('z-paypal-link').textContent=link;S('z-paypal-box').style.display='block';
+}
+function copyPaypal(){copyText(S('z-paypal-link').textContent);}
+function openPaypal(){window.open(S('z-paypal-link').textContent,'_blank');}
+
+// ─── PAGE NAV ─────────────────────────────────────────────────────────────────
+const pages=['cockpit','leads','import','akquise','coach','zahlung','sql'];
+function showPage(p){
+  pages.forEach(id=>{
+    const el=S('page-'+id);if(el)el.style.display=id===p?'block':'none';
+    const si=S('si-'+id);if(si)si.classList.toggle('active',id===p);
+  });
+}
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+function sanitize(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+function copyText(t){navigator.clipboard.writeText(t);gToast('Kopiert ✓');}
+function copySQL(){copyText(S('sql-code').textContent);}
+let gToastTimer;
+function gToast(msg,type){
+  const el=S('gtost');el.textContent=msg;
+  el.style.background=type==='err'?'#dc2626':'var(--grn)';
+  el.classList.add('show');
+  clearTimeout(gToastTimer);gToastTimer=setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+checkAdminAuth();
+</script>
+</body>
+</html>
